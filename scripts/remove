@@ -1,0 +1,31 @@
+#!/bin/bash
+
+# Récupère les infos de l'application.
+app=minidlna
+version=$(sudo yunohost app setting $app version)
+port=$(sudo yunohost app setting $app port)
+
+# Ferme les ports dans le firewall
+sudo yunohost firewall disallow TCP $port > /dev/null 2>&1
+sudo yunohost firewall disallow UDP 1900 > /dev/null 2>&1	# Découverte SSDP pour UPNP.
+
+# Suppression du paquet minidlna
+sudo apt-get -y purge minidlna
+if [ $version = "B" ]
+then
+	sudo rm /etc/apt/sources.list.d/minidlna.list
+fi
+
+# Suppression du paramètre inotify pour minidlna.
+sudo rm /etc/sysctl.d/90-inotify_minidlna.conf
+# Et rechargement de la config du noyau.
+sudo sysctl --system
+
+# Retire le service du monitoring de Yunohost.
+sudo yunohost service remove minidlna
+
+# Suppression des log
+sudo rm -r /var/log/minidlna.log
+
+# Régénère la configuration de SSOwat
+sudo yunohost app ssowatconf

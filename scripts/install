@@ -1,0 +1,59 @@
+#!/bin/bash
+
+# Renseigne les variables à partir des arguments.
+version=$1
+app=minidlna
+
+# Cherche un port libre.
+port=48200
+sudo yunohost app checkport $port
+while [[ ! $? -eq 0 ]]; do
+    port=$((port+1))
+    sudo yunohost app checkport $port
+done
+
+# Ouvre les ports dans le firewall
+sudo yunohost firewall allow --no-upnp TCP $port > /dev/null 2>&1
+sudo yunohost firewall allow --no-upnp UDP 1900 > /dev/null 2>&1	# Découverte SSDP pour UPNP.
+
+# Enregistre les infos dans la config YunoHost
+sudo yunohost app setting $app version -v ${version:0:1}
+sudo yunohost app setting $app port -v $port
+
+# Création du dossier yunohost.multimedia
+wget https://github.com/maniackcrudelis/yunohost.multimedia/archive/master.zip
+unzip master.zip
+sudo ./yunohost.multimedia-master/script/ynh_media_build.sh
+
+# Installation du paquet minidlna et ses dépendances
+if [ ${version:0:1} = "B" ]
+then	# Installation de la version minidlna disponible dans backport. (En cas de problème avec la version actuelle des dépots)
+	codename=$(lsb_release -a 2>/dev/null | grep Codename | cut -f 2)
+	sudo sed -i "s@__CODENAME__@$codename@g" ../conf/minidlna.list
+	sudo cp -a ../conf/minidlna.list /etc/apt/sources.list.d/
+	sudo apt-get update
+	sudo apt-get -t $codename-backports -y install minidlna
+else	# Installation de la version minidlna des dépots courants.
+	sudo apt-get update
+	sudo apt-get -y install minidlna
+fi
+
+# Augmentation du nombre maximum de fichiers surveillés par inotify.
+sudo cp -a ../conf/90-inotify_minidlna.conf /etc/sysctl.d/
+# Et rechargement de la config du noyau.
+sudo sysctl --system
+
+# Ajoute le service au monitoring de Yunohost.
+sudo yunohost service add minidlna --log "/var/log/minidlna.log"
+
+# Modifie la configuration de minidlna
+sudo sed -i 's@^#*media_dir=.*@media_dir=/home/yunohost.multimedia/share@' /etc/minidlna.conf
+sudo sed -i "s/^#*port=.*/port=$port/" /etc/minidlna.conf
+sudo sed -i "s/^#*friendly_name=.*/friendly_name=Yunohost DLNA/" /etc/minidlna.conf
+sudo sed -i "s/^#*root_container=.*/root_container=./" /etc/minidlna.conf
+
+# Redémarre minidlna pour prendre en compte la nouvelle configuration
+sudo service minidlna restart
+
+# Régénère la configuration de SSOwat
+sudo yunohost app ssowatconf

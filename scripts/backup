@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# Récupère les infos de l'application.
+app=minidlna
+version=$(sudo yunohost app setting $app version)
+port=$(sudo yunohost app setting $app port)
+
+
+# The parameter $1 is the backup directory location
+# which will be compressed afterward
+backup_dir=$1/apps/$app
+sudo mkdir -p "$backup_dir"
+
+# Copie des fichiers spécifiques à l'application
+if [ $version = "B" ]
+then
+	sudo cp -a /etc/apt/sources.list.d/minidlna.list $backup_dir/
+fi
+sudo cp -a /etc/sysctl.d/90-inotify_minidlna.conf $backup_dir/
+sudo cp -a /etc/minidlna.conf $backup_dir/

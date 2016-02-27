@@ -1,0 +1,44 @@
+#!/bin/bash
+
+# Récupère les infos de l'application.
+app=minidlna
+version=$(sudo yunohost app setting $app version)
+port=$(sudo yunohost app setting $app port)
+
+# Mise à jour du dossier yunohost.multimedia
+wget https://github.com/maniackcrudelis/yunohost.multimedia/archive/master.zip
+unzip master.zip
+sudo ./yunohost.multimedia-master/script/ynh_media_build.sh
+
+# Mise à jour éventuelle du paquet minidlna
+if [ $version = "B" ]
+then	# Installation de la version minidlna disponible dans backport. (En cas de problème avec la version actuelle des dépots)
+	codename=$(lsb_release -a 2>/dev/null | grep Codename | cut -f 2)
+	sudo sed -i "s@__CODENAME__@$codename@g" ../conf/minidlna.list
+	sudo cp -a ../conf/minidlna.list /etc/apt/sources.list.d/
+	sudo apt-get update
+	sudo apt-get -t $codename-backports -y install minidlna
+else	# Installation de la version minidlna des dépots courants.
+	sudo apt-get update
+	sudo apt-get -y install minidlna
+fi
+
+# Augmentation du nombre maximum de fichiers surveillés par inotify.
+sudo cp -a ../conf/90-inotify_minidlna.conf /etc/sysctl.d/
+# Et rechargement de la config du noyau.
+sudo sysctl --system
+
+# Ajoute le service au monitoring de Yunohost.
+sudo yunohost service add minidlna --log "/var/log/minidlna.log"
+
+# Modifie la configuration de minidlna
+sudo sed -i 's@^#*media_dir=.*@media_dir=/home/yunohost.multimedia/share@' /etc/minidlna.conf
+sudo sed -i "s/^#*port=.*/port=$port/" /etc/minidlna.conf
+sudo sed -i "s/^#*friendly_name=.*/friendly_name=Yunohost DLNA/" /etc/minidlna.conf
+sudo sed -i "s/^#*root_container=.*/root_container=./" /etc/minidlna.conf
+
+# Redémarre minidlna pour prendre en compte la nouvelle configuration
+sudo service minidlna restart
+
+# Régénère la configuration de SSOwat
+sudo yunohost app ssowatconf
