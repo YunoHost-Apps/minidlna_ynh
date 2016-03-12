@@ -35,7 +35,7 @@ sudo yunohost service add minidlna --log "/var/log/minidlna.log"
 sudo sed -i 's@^#*media_dir=.*@media_dir=/home/yunohost.multimedia/share@' /etc/minidlna.conf
 sudo sed -i "s/^#*port=.*/port=$port/" /etc/minidlna.conf
 sudo sed -i "s/^#*friendly_name=.*/friendly_name=Yunohost DLNA/" /etc/minidlna.conf
-sudo sed -i "s/^#*root_container=.*/root_container=./" /etc/minidlna.conf
+sudo sed -i "s/^#*root_container=.*/root_container=B/" /etc/minidlna.conf
 
 # Redémarre minidlna pour prendre en compte la nouvelle configuration
 sudo service minidlna restart
