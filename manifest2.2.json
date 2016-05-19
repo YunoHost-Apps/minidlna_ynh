@@ -2,9 +2,6 @@
     "name": "MiniDLNA",
     "id": "minidlna",
     "packaging_format": 1,
-    "requirements": {
-        "yunohost": ">= 2.4"
-    },
     "description": {
         "en": "Light DLNA server to share media files over the LAN",
         "fr": "Serveur DLNA léger pour partager les fichiers multimédia sur le réseau local"

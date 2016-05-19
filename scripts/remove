@@ -1,31 +1,61 @@
 #!/bin/bash
 
 # Récupère les infos de l'application.
-app=minidlna
-version=$(sudo yunohost app setting $app version)
+ynh_version=$(sudo yunohost -v | grep "moulinette:" | cut -d' ' -f2 | cut -d'.' -f1,2)
+if [ $ynh_version = "2.4" ]; then
+	app=$YNH_APP_INSTANCE_NAME
+
+	# Source app helpers
+	. /usr/share/yunohost/helpers
+else
+	app=minidlna
+fi
 port=$(sudo yunohost app setting $app port)
 
 # Ferme les ports dans le firewall
-sudo yunohost firewall disallow TCP $port > /dev/null 2>&1
-sudo yunohost firewall disallow UDP 1900 > /dev/null 2>&1	# Découverte SSDP pour UPNP.
+if sudo yunohost firewall list | grep -q "\- $port$"
+then
+	echo "Close port $port"
+	sudo yunohost firewall disallow TCP $port > /dev/null
+fi
+if sudo yunohost firewall list | grep -q "\- 1900$"
+then
+	echo "Close port 1900"
+	sudo yunohost firewall disallow UDP 1900 > /dev/null
+fi
 
 # Suppression du paquet minidlna
-sudo apt-get -y purge minidlna
-if [ $version = "B" ]
-then
-	sudo rm /etc/apt/sources.list.d/minidlna.list
+if [ -e "/usr/sbin/minidlnad" ] || [ -e "/usr/bin/minidlnad" ]; then
+	echo "Remove minidlna package"
+	sudo apt-get -y purge minidlna
+fi
+if [ -e "/etc/apt/sources.list.d/minidlna.list" ]; then
+	echo "Delete apt config"
+	sudo rm "/etc/apt/sources.list.d/minidlna.list"
 fi
 
 # Suppression du paramètre inotify pour minidlna.
-sudo rm /etc/sysctl.d/90-inotify_minidlna.conf
-# Et rechargement de la config du noyau.
-sudo sysctl --system
+if [ -e "/etc/sysctl.d/90-inotify_minidlna.conf" ]; then
+	echo "Delete kernel config"
+	sudo rm "/etc/sysctl.d/90-inotify_minidlna.conf"
+	# Et rechargement de la config du noyau.
+	sudo sysctl --system
+fi
 
 # Retire le service du monitoring de Yunohost.
-sudo yunohost service remove minidlna
+if sudo yunohost service status | grep -q minidlna	# Test l'existence du service dans Yunohost
+then
+	echo "Remove minidlna service"
+	sudo yunohost service remove minidlna
+fi
 
 # Suppression des log
-sudo rm -r /var/log/minidlna.log
+if [ -e "/var/log/minidlna.log" ]; then
+	echo "Delete log"
+	sudo rm "/var/log/minidlna.log"
+fi
 
 # Régénère la configuration de SSOwat
 sudo yunohost app ssowatconf
+
+echo -e "\e[0m"	# Restore normal color

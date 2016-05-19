@@ -1,7 +1,12 @@
 #!/bin/bash
 
 # Récupère les infos de l'application.
-app=minidlna
+ynh_version=$(sudo yunohost -v | grep "moulinette:" | cut -d' ' -f2 | cut -d'.' -f1,2)
+if [ $ynh_version = "2.4" ]; then
+	app=$YNH_APP_INSTANCE_NAME
+else
+	app=minidlna
+fi
 version=$(sudo yunohost app setting $app version)
 port=$(sudo yunohost app setting $app port)
 
