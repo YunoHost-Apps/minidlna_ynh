@@ -87,6 +87,7 @@ sudo sed -i 's@^#*media_dir=.*@media_dir=/home/yunohost.multimedia/share@' /etc/
 sudo sed -i "s/^#*port=.*/port=$port/" /etc/minidlna.conf
 sudo sed -i "s/^#*friendly_name=.*/friendly_name=Yunohost DLNA/" /etc/minidlna.conf
 sudo sed -i "s/^#*root_container=.*/root_container=B/" /etc/minidlna.conf
+sudo yunohost app setting $app minidlna.conf_file_md5 -v $(md5sum "/etc/minidlna.conf" | cut -d' ' -f1)
 
 # Redémarre minidlna pour prendre en compte la nouvelle configuration
 sudo service minidlna restart

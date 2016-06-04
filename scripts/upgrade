@@ -37,6 +37,10 @@ sudo sysctl --system
 sudo yunohost service add minidlna --log "/var/log/minidlna.log"
 
 # Modifie la configuration de minidlna
+config_file="/etc/minidlna.conf"
+if [ "$(sudo yunohost app setting $app minidlna.conf_file_md5)" != $(md5sum "$config_file" | cut -d' ' -f1) ]; then
+	sudo cp -a "$config_file" "$config_file.backup.$(date '+%d.%m.%y_%Hh%M,%Ss')"	# Si le fichier de config a été modifié, créer un backup.
+fi
 sudo sed -i 's@^#*media_dir=.*@media_dir=/home/yunohost.multimedia/share@' /etc/minidlna.conf
 sudo sed -i "s/^#*port=.*/port=$port/" /etc/minidlna.conf
 sudo sed -i "s/^#*friendly_name=.*/friendly_name=Yunohost DLNA/" /etc/minidlna.conf
