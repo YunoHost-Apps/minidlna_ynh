@@ -41,10 +41,8 @@ TRAP_ON
 
 # Cherche un port libre.
 port=48200
-sudo yunohost app checkport $port
-while [[ ! $? -eq 0 ]]; do
-    port=$((port+1))
-    sudo yunohost app checkport $port
+while ! sudo yunohost app checkport $port ; do
+	port=$((port+1))
 done
 
 # Ouvre les ports dans le firewall
