@@ -15,6 +15,9 @@ else
 	app=minidlna
 fi
 
+# Checks variables are not empty
+test -z "$version" && (echo "version not set" && touch /force_stop)
+
 
 # Delete files and db if exit with an error
 EXIT_PROPERLY () {
