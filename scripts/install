@@ -1,6 +1,16 @@
 #!/bin/bash
 
-ynh_version=$(sudo yunohost -v | grep "moulinette:" | cut -d' ' -f2 | cut -d'.' -f1,2)
+source .fonctions	# Charge les fonctions génériques habituellement utilisées dans le script
+
+YNH_VERSION	# Récupère le numéro de version de Yunohost.
+
+CLEAN_SETUP () {
+# Nettoyage des résidus d'installation non pris en charge par le script remove.
+# Pas de nettoyage supplémentaire nécessaire ici...
+	echo ""
+}
+TRAP_ON	# Active trap pour arrêter le script si une erreur est détectée.
+
 # Retrieve arguments
 if [ $ynh_version = "2.4" ]
 then
@@ -15,38 +25,11 @@ else
 	app=minidlna
 fi
 
-# Checks variables are not empty
-test -z "$version" && (echo "version not set" && touch /force_stop)
+# Vérifie que les variables ne sont pas vides.
+CHECK_VAR "$app" "app name not set"
 
 
-# Delete files and db if exit with an error
-EXIT_PROPERLY () {
-	trap '' ERR
-	echo -e "\e[91m \e[1m"	# Shell in light red bold
-	echo -e "!!\n  $app install's script has encountered an error. Installation was cancelled.\n!!"
-
-	if [ $ynh_version = "2.2" ]; then
-		/bin/bash ./remove	# Appel le script remove. En 2.2, ce comportement n'est pas automatique.
-	fi
-	exit 1
-}
-TRAP_ON () {	# Activate signal capture
-	trap EXIT_PROPERLY ERR	# Capturing exit signals on error
-}
-TRAP_OFF () {	# Ignoring signal capture until TRAP_ON
-# Pour une raison que j'ignore, la fonction TRAP_ON fonctionne très bien.
-# Mais pas la fonction TRAP_OFF...
-# Utiliser directement `trap '' ERR` dans le code pour l'utiliser, à la place de la fonction.
-	trap '' ERR	# Ignoring exit signals
-}
-TRAP_ON
-
-
-# Cherche un port libre.
-port=48200
-while ! sudo yunohost app checkport $port ; do
-	port=$((port+1))
-done
+FIND_PORT 48200	# Cherche un port libre.
 
 # Ouvre les ports dans le firewall
 sudo yunohost firewall allow --no-upnp TCP $port > /dev/null 2>&1
@@ -65,6 +48,7 @@ sudo ./yunohost.multimedia-master/script/ynh_media_build.sh
 if [ ${version:0:1} = "B" ]
 then	# Installation de la version minidlna disponible dans backport. (En cas de problème avec la version actuelle des dépots)
 	codename=$(lsb_release -a 2>/dev/null | grep Codename | cut -f 2)
+	test -z "$codename" && (echo "codename empty" && false)
 	sudo sed -i "s@__CODENAME__@$codename@g" ../conf/minidlna.list
 	sudo cp -a ../conf/minidlna.list /etc/apt/sources.list.d/
 	sudo apt-get update
@@ -87,7 +71,7 @@ sudo sed -i 's@^#*media_dir=.*@media_dir=/home/yunohost.multimedia/share@' /etc/
 sudo sed -i "s/^#*port=.*/port=$port/" /etc/minidlna.conf
 sudo sed -i "s/^#*friendly_name=.*/friendly_name=Yunohost DLNA/" /etc/minidlna.conf
 sudo sed -i "s/^#*root_container=.*/root_container=B/" /etc/minidlna.conf
-sudo yunohost app setting $app minidlna.conf_file_md5 -v $(md5sum "/etc/minidlna.conf" | cut -d' ' -f1)
+STORE_MD5_CONFIG "minidlna.conf" "/etc/minidlna.conf"	# Enregistre la somme de contrôle du fichier de config
 
 # Redémarre minidlna pour prendre en compte la nouvelle configuration
 sudo service minidlna restart
