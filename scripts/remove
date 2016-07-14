@@ -32,7 +32,7 @@ if [ -e "/usr/sbin/minidlnad" ] || [ -e "/usr/bin/minidlnad" ]; then
 	sudo apt-get -y purge minidlna
 fi
 if [ -e "/etc/apt/sources.list.d/minidlna.list" ]; then
-	echo "Delete apt config"
+	echo "Delete sources.list config"
 	sudo rm "/etc/apt/sources.list.d/minidlna.list"
 fi
 

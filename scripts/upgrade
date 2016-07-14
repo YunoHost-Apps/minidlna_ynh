@@ -13,7 +13,7 @@ version=$(sudo yunohost app setting $app version)
 port=$(sudo yunohost app setting $app port)
 
 # Mise à jour du dossier yunohost.multimedia
-wget https://github.com/maniackcrudelis/yunohost.multimedia/archive/master.zip
+wget -nv https://github.com/maniackcrudelis/yunohost.multimedia/archive/master.zip
 unzip master.zip
 sudo ./yunohost.multimedia-master/script/ynh_media_build.sh
 
