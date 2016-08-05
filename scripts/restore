@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Récupère les infos de l'application.
-ynh_version=$(sudo yunohost -v | grep "moulinette:" | cut -d' ' -f2 | cut -d'.' -f1,2)
+ynh_version=$(sudo yunohost -v | grep "moulinette:" | cut -d' ' -f2 | cut -d'.' -f1,2)	# Récupère le numéro de version de Yunohost.
 if [ $ynh_version = "2.4" ]; then
 	app=$YNH_APP_INSTANCE_NAME
 else
@@ -18,7 +18,7 @@ sudo yunohost firewall allow --no-upnp TCP $port > /dev/null 2>&1
 sudo yunohost firewall allow --no-upnp UDP 1900 > /dev/null 2>&1	# Découverte SSDP pour UPNP.
 
 # Création du dossier yunohost.multimedia
-wget https://github.com/maniackcrudelis/yunohost.multimedia/archive/master.zip
+wget -nv https://github.com/maniackcrudelis/yunohost.multimedia/archive/master.zip
 unzip master.zip
 sudo ./yunohost.multimedia-master/script/ynh_media_build.sh
 

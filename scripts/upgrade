@@ -1,7 +1,9 @@
 #!/bin/bash
 
+source .fonctions	# Charge les fonctions génériques habituellement utilisées dans le script
+
 # Récupère les infos de l'application.
-ynh_version=$(sudo yunohost -v | grep "moulinette:" | cut -d' ' -f2 | cut -d'.' -f1,2)
+YNH_VERSION	# Récupère le numéro de version de Yunohost.
 if [ $ynh_version = "2.4" ]; then
 	app=$YNH_APP_INSTANCE_NAME
 else
@@ -11,7 +13,7 @@ version=$(sudo yunohost app setting $app version)
 port=$(sudo yunohost app setting $app port)
 
 # Mise à jour du dossier yunohost.multimedia
-wget https://github.com/maniackcrudelis/yunohost.multimedia/archive/master.zip
+wget -nv https://github.com/maniackcrudelis/yunohost.multimedia/archive/master.zip
 unzip master.zip
 sudo ./yunohost.multimedia-master/script/ynh_media_build.sh
 
@@ -37,6 +39,7 @@ sudo sysctl --system
 sudo yunohost service add minidlna --log "/var/log/minidlna.log"
 
 # Modifie la configuration de minidlna
+CHECK_MD5_CONFIG "minidlna.conf" "/etc/minidlna.conf"	# Créé un backup du fichier de config si il a été modifié.
 sudo sed -i 's@^#*media_dir=.*@media_dir=/home/yunohost.multimedia/share@' /etc/minidlna.conf
 sudo sed -i "s/^#*port=.*/port=$port/" /etc/minidlna.conf
 sudo sed -i "s/^#*friendly_name=.*/friendly_name=Yunohost DLNA/" /etc/minidlna.conf
