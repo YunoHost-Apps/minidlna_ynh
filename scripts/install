@@ -12,18 +12,12 @@ CLEAN_SETUP () {
 TRAP_ON	# Active trap pour arrêter le script si une erreur est détectée.
 
 # Retrieve arguments
-if [ $ynh_version = "2.4" ]
-then
-	version=$YNH_APP_ARG_VERSION
+version=$YNH_APP_ARG_VERSION
 
-	app=$YNH_APP_INSTANCE_NAME
+app=$YNH_APP_INSTANCE_NAME
 
-	# Source app helpers
-	source /usr/share/yunohost/helpers
-else
-	version=$1
-	app=minidlna
-fi
+# Source app helpers
+source /usr/share/yunohost/helpers
 
 # Vérifie que les variables ne sont pas vides.
 CHECK_VAR "$app" "app name not set"
