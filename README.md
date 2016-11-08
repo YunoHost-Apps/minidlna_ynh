@@ -12,6 +12,6 @@ Le script installe les paquets *i965-va-driver*, *i965-va-driver*, *libavcodec56
 [Documentation minidlna](https://yunohost.org/#/app_minidlna_fr) pour Yunohost.
 
 **Mise à jour du package:**  
-sudo yunohost app upgrade -u https://github.com/YunoHost-Apps/minidlna_ynh
+sudo yunohost app upgrade --verbose minidlna -u https://github.com/YunoHost-Apps/minidlna_ynh
 
 **Multi-utilisateur:** Pas de gestion des utilisateurs, les partages sont accessible librement.
