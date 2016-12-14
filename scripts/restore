@@ -3,8 +3,11 @@
 # Récupère les infos de l'application.
 app=$YNH_APP_INSTANCE_NAME
 
-version=$(sudo yunohost app setting $app version)
-port=$(sudo yunohost app setting $app port)
+# Source app helpers
+source /usr/share/yunohost/helpers
+
+version=$(ynh_app_setting_get $app version)
+port=$(ynh_app_setting_get $app port)
 
 # The parameter $1 is the uncompressed restore directory location
 backup_dir=$1/apps/$app
