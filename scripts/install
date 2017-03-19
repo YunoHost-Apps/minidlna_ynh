@@ -1,46 +1,67 @@
 #!/bin/bash
 
-source .fonctions	# Charge les fonctions génériques habituellement utilisées dans le script
+#=================================================
+# GENERIC STARTING
+#=================================================
+# IMPORT GENERIC HELPERS
+#=================================================
 
-CLEAN_SETUP () {
-# Nettoyage des résidus d'installation non pris en charge par le script remove.
-# Pas de nettoyage supplémentaire nécessaire ici...
-	echo ""
-}
-TRAP_ON	# Active trap pour arrêter le script si une erreur est détectée.
-
-# Retrieve arguments
-version=$YNH_APP_ARG_VERSION
-
-app=$YNH_APP_INSTANCE_NAME
-
-# Source app helpers
+source .fonctions
 source /usr/share/yunohost/helpers
 
-# Vérifie que les variables ne sont pas vides.
-CHECK_VAR "$app" "app name not set"
+#=================================================
+# MANAGE FAILURE OF THE SCRIPT
+#=================================================
 
+ynh_abort_if_errors	# Active trap pour arrêter le script si une erreur est détectée.
 
-FIND_PORT 48200	# Cherche un port libre.
+#=================================================
+# RETRIEVE ARGUMENTS FROM THE MANIFEST
+#=================================================
+
+version=$YNH_APP_ARG_VERSION
+app=$YNH_APP_INSTANCE_NAME
+
+#=================================================
+# CHECK THE DEBIAN'S CODENAME
+#=================================================
+
+codename=$(lsb_release -a 2>/dev/null | grep Codename | cut -f 2)
+test -z "$codename" && (ynh_die "codename empty")
+
+#=================================================
+# STANDARD MODIFICATIONS
+#=================================================
+# FIND AND OPEN A PORT
+#=================================================
+
+port=$(ynh_find_port 48200)	# Cherche un port libre.
 
 # Ouvre les ports dans le firewall
-sudo yunohost firewall allow --no-upnp TCP $port > /dev/null 2>&1
-sudo yunohost firewall allow --no-upnp UDP 1900 > /dev/null 2>&1	# Découverte SSDP pour UPNP.
+ALL_QUIET sudo yunohost firewall allow --no-upnp TCP $port
+ALL_QUIET sudo yunohost firewall allow --no-upnp UDP 1900	# Découverte SSDP pour UPNP.
+ynh_app_setting_set $app port $port
 
 # Enregistre les infos dans la config YunoHost
 ynh_app_setting_set $app version ${version:0:1}
-ynh_app_setting_set $app port $port
 
-# Création du dossier yunohost.multimedia
-wget -nv https://github.com/maniackcrudelis/yunohost.multimedia/archive/master.zip
+#=================================================
+# CREATE YUNOHOST.MULTIMEDIA DIRECTORY
+#=================================================
+
+wget -nv https://github.com/YunoHost-Apps/yunohost.multimedia/archive/master.zip
 unzip master.zip
 sudo ./yunohost.multimedia-master/script/ynh_media_build.sh
+
+#=================================================
+# SPECIFIC SETUP
+#=================================================
+# INSTALL MINIDLNA
+#=================================================
 
 # Installation du paquet minidlna et ses dépendances
 if [ ${version:0:1} = "B" ]
 then	# Installation de la version minidlna disponible dans backport. (En cas de problème avec la version actuelle des dépots)
-	codename=$(lsb_release -a 2>/dev/null | grep Codename | cut -f 2)
-	test -z "$codename" && (echo "codename empty" && false)
 	sudo sed -i "s@__CODENAME__@$codename@g" ../conf/minidlna.list
 	sudo cp -a ../conf/minidlna.list /etc/apt/sources.list.d/
 	sudo apt-get update
@@ -49,14 +70,27 @@ else	# Installation de la version minidlna des dépots courants.
 	sudo apt-get update
 	sudo apt-get -y install minidlna
 fi
+ynh_app_setting_set $app version ${version:0:1}
+
+#=================================================
+# INCREASE INOTIFY'S LIMITS
+#=================================================
 
 # Augmentation du nombre maximum de fichiers surveillés par inotify.
 sudo cp -a ../conf/90-inotify_minidlna.conf /etc/sysctl.d/
 # Et rechargement de la config du noyau.
 sudo sysctl --system
 
+#=================================================
+# ENABLE SERVICE IN ADMIN PANEL
+#=================================================
+
 # Ajoute le service au monitoring de Yunohost.
 sudo yunohost service add minidlna --log "/var/log/minidlna.log"
+
+#=================================================
+# CONFIGURE MINIDLNA
+#=================================================
 
 # Modifie la configuration de minidlna
 sudo sed -i 's@^#*media_dir=.*@media_dir=/home/yunohost.multimedia/share@' /etc/minidlna.conf
@@ -65,8 +99,9 @@ sudo sed -i "s/^#*friendly_name=.*/friendly_name=Yunohost DLNA/" /etc/minidlna.c
 sudo sed -i "s/^#*root_container=.*/root_container=B/" /etc/minidlna.conf
 STORE_MD5_CONFIG "minidlna.conf" "/etc/minidlna.conf"	# Enregistre la somme de contrôle du fichier de config
 
-# Redémarre minidlna pour prendre en compte la nouvelle configuration
-sudo service minidlna restart
+#=================================================
+# RESTART MINIDLNA'S SERVICE
+#=================================================
 
-# Régénère la configuration de SSOwat
-sudo yunohost app ssowatconf
+# Redémarre minidlna pour prendre en compte la nouvelle configuration
+sudo systemctl restart minidlna

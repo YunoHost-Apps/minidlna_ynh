@@ -1,31 +1,60 @@
 #!/bin/bash
 
-# Récupère les infos de l'application.
-app=$YNH_APP_INSTANCE_NAME
+#=================================================
+# GENERIC STARTING
+#=================================================
+# MANAGE FAILURE OF THE SCRIPT
+#=================================================
 
-# Source app helpers
+# Exit on command errors and treat unset variables as an error
+set -eu
+
+#=================================================
+# IMPORT GENERIC HELPERS
+#=================================================
+
+if [ ! -e .fonctions ]; then
+	# Rapatrie le fichier de fonctions si il n'est pas dans le dossier courant
+	sudo cp ../settings/scripts/.fonctions ./.fonctions
+	sudo chmod a+rx .fonctions
+fi
+source .fonctions
 source /usr/share/yunohost/helpers
+
+#=================================================
+# LOAD SETTINGS
+#=================================================
+
+app=$YNH_APP_INSTANCE_NAME
 
 version=$(ynh_app_setting_get $app version)
 port=$(ynh_app_setting_get $app port)
 
-# The parameter $1 is the uncompressed restore directory location
-backup_dir=$1/apps/$app
+#=================================================
+# SPECIFIC RESTORE
+#=================================================
+# OPEN PORTS
+#=================================================
 
-# Ouvre les ports dans le firewall
 sudo yunohost firewall allow --no-upnp TCP $port > /dev/null 2>&1
-sudo yunohost firewall allow --no-upnp UDP 1900 > /dev/null 2>&1	# Découverte SSDP pour UPNP.
+sudo yunohost firewall allow --no-upnp UDP 1900	 > /dev/null 2>&1 # Découverte SSDP pour UPNP.
 
-# Création du dossier yunohost.multimedia
+#=================================================
+# CREATE YUNOHOST.MULTIMEDIA DIRECTORY
+#=================================================
+
 wget -nv https://github.com/maniackcrudelis/yunohost.multimedia/archive/master.zip
 unzip master.zip
 sudo ./yunohost.multimedia-master/script/ynh_media_build.sh
 
-# Installation du paquet minidlna et ses dépendances
+#=================================================
+# INSTALL MINIDLNA
+#=================================================
+
 if [ ${version:0:1} = "B" ]
 then	# Installation de la version minidlna disponible dans backport. (En cas de problème avec la version actuelle des dépots)
 	codename=$(lsb_release -a 2>/dev/null | grep Codename | cut -f 2)
-	sudo cp -a $backup_dir/minidlna.list /etc/apt/sources.list.d/
+	sudo cp -a ./minidlna.list /etc/apt/sources.list.d/
 	sudo sed -i "s@ [a-z]*-backports@ $codename-backports@g" /etc/apt/sources.list.d/minidlna.list
 	sudo apt-get update
 	sudo apt-get -t $codename-backports -y install minidlna
@@ -34,14 +63,19 @@ else	# Installation de la version minidlna des dépots courants.
 	sudo apt-get -y install minidlna
 fi
 
-# Copie des fichiers spécifiques à l'application
-sudo cp -a $backup_dir/90-inotify_minidlna.conf /etc/sysctl.d/
+#=================================================
+# RESTORE INOTIFY'S CONFIG
+#=================================================
+
+sudo cp -a ./inotify /etc/sysctl.d/90-inotify_minidlna.conf
 sudo sysctl --system
 
-sudo cp -a $backup_dir/minidlna.conf /etc/
-sudo service minidlna restart
+sudo cp -a ./minidlna.conf /etc/
+sudo systemctl restart minidlna
+
+#=================================================
+# ENABLE SERVICE IN ADMIN PANEL
+#=================================================
 
 # Ajoute le service au monitoring de Yunohost.
 sudo yunohost service add minidlna --log "/var/log/minidlna.log"
-
-sudo yunohost app ssowatconf

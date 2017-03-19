@@ -1,26 +1,56 @@
 #!/bin/bash
 
-source .fonctions	# Charge les fonctions génériques habituellement utilisées dans le script
+#=================================================
+# GENERIC STARTING
+#=================================================
+# IMPORT GENERIC HELPERS
+#=================================================
 
-# Récupère les infos de l'application.
-app=$YNH_APP_INSTANCE_NAME
-
-# Source app helpers
+source .fonctions
 source /usr/share/yunohost/helpers
 
+#=================================================
+# LOAD SETTINGS
+#=================================================
+
+app=$YNH_APP_INSTANCE_NAME
+
 port=$(ynh_app_setting_get $app port)
+
+#=================================================
+# STANDARD REMOVE
+#=================================================
+# DISABLE SERVICE IN ADMIN PANEL
+#=================================================
+
+# Retire le service du monitoring de Yunohost.
+if sudo yunohost service status | grep -q minidlna	# Test l'existence du service dans Yunohost
+then
+	echo "Remove minidlna service"
+	sudo yunohost service remove minidlna
+fi
+
+#=================================================
+# CLOSE THE PORTS
+#=================================================
 
 # Ferme les ports dans le firewall
 if sudo yunohost firewall list | grep -q "\- $port$"
 then
 	echo "Close port $port"
-	sudo yunohost firewall disallow TCP $port > /dev/null
+	QUIET sudo yunohost firewall disallow TCP $port
 fi
 if sudo yunohost firewall list | grep -q "\- 1900$"
 then
 	echo "Close port 1900"
-	sudo yunohost firewall disallow UDP 1900 > /dev/null
+	QUIET sudo yunohost firewall disallow UDP 1900
 fi
+
+#=================================================
+# SPECIFIC REMOVE
+#=================================================
+# REMOVE MINIDNLA
+#=================================================
 
 # Suppression du paquet minidlna
 if [ -e "/usr/sbin/minidlnad" ] || [ -e "/usr/bin/minidlnad" ]; then
@@ -32,6 +62,10 @@ if [ -e "/etc/apt/sources.list.d/minidlna.list" ]; then
 	sudo rm "/etc/apt/sources.list.d/minidlna.list"
 fi
 
+#=================================================
+# REMOVE INOTIFY'S CONFIG
+#=================================================
+
 # Suppression du paramètre inotify pour minidlna.
 if [ -e "/etc/sysctl.d/90-inotify_minidlna.conf" ]; then
 	echo "Delete kernel config"
@@ -39,21 +73,3 @@ if [ -e "/etc/sysctl.d/90-inotify_minidlna.conf" ]; then
 	# Et rechargement de la config du noyau.
 	sudo sysctl --system
 fi
-
-# Retire le service du monitoring de Yunohost.
-if sudo yunohost service status | grep -q minidlna	# Test l'existence du service dans Yunohost
-then
-	echo "Remove minidlna service"
-	sudo yunohost service remove minidlna
-fi
-
-# Suppression des log
-if [ -e "/var/log/minidlna.log" ]; then
-	echo "Delete log"
-	sudo rm "/var/log/minidlna.log"
-fi
-
-# Régénère la configuration de SSOwat
-sudo yunohost app ssowatconf
-
-echo -e "\e[0m"	# Restore normal color

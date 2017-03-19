@@ -1,22 +1,45 @@
 #!/bin/bash
 
-source .fonctions	# Charge les fonctions génériques habituellement utilisées dans le script
+#=================================================
+# GENERIC STARTING
+#=================================================
+# IMPORT GENERIC HELPERS
+#=================================================
 
-# Récupère les infos de l'application.
-app=$YNH_APP_INSTANCE_NAME
-
-# Source app helpers
+source .fonctions
 source /usr/share/yunohost/helpers
+
+#=================================================
+# LOAD SETTINGS
+#=================================================
+
+app=$YNH_APP_INSTANCE_NAME
 
 version=$(ynh_app_setting_get $app version)
 port=$(ynh_app_setting_get $app port)
 
-# Mise à jour du dossier yunohost.multimedia
+#=================================================
+# BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
+#=================================================
+
+BACKUP_BEFORE_UPGRADE	# Backup the current version of the app
+ynh_clean_setup () {
+	BACKUP_FAIL_UPGRADE	# restore it if the upgrade fails
+}
+ynh_abort_if_errors	# Active trap pour arrêter le script si une erreur est détectée.
+
+#=================================================
+# UPGRADE THE YUNOHOST.MULTIMEDIA DIRECTORY
+#=================================================
+
 wget -nv https://github.com/maniackcrudelis/yunohost.multimedia/archive/master.zip
 unzip master.zip
 sudo ./yunohost.multimedia-master/script/ynh_media_build.sh
 
-# Mise à jour éventuelle du paquet minidlna
+#=================================================
+# UPGRADE MINIDLNA
+#=================================================
+
 if [ $version = "B" ]
 then	# Installation de la version minidlna disponible dans backport. (En cas de problème avec la version actuelle des dépots)
 	codename=$(lsb_release -a 2>/dev/null | grep Codename | cut -f 2)
@@ -29,13 +52,25 @@ else	# Installation de la version minidlna des dépots courants.
 	sudo apt-get -y install minidlna
 fi
 
+#=================================================
+# INCREASE INOTIFY'S LIMITS
+#=================================================
+
 # Augmentation du nombre maximum de fichiers surveillés par inotify.
 sudo cp -a ../conf/90-inotify_minidlna.conf /etc/sysctl.d/
 # Et rechargement de la config du noyau.
 sudo sysctl --system
 
+#=================================================
+# ENABLE SERVICE IN ADMIN PANEL
+#=================================================
+
 # Ajoute le service au monitoring de Yunohost.
 sudo yunohost service add minidlna --log "/var/log/minidlna.log"
+
+#=================================================
+# CONFIGURE MINIDLNA
+#=================================================
 
 # Modifie la configuration de minidlna
 CHECK_MD5_CONFIG "minidlna.conf" "/etc/minidlna.conf"	# Créé un backup du fichier de config si il a été modifié.
@@ -44,8 +79,9 @@ sudo sed -i "s/^#*port=.*/port=$port/" /etc/minidlna.conf
 sudo sed -i "s/^#*friendly_name=.*/friendly_name=Yunohost DLNA/" /etc/minidlna.conf
 sudo sed -i "s/^#*root_container=.*/root_container=B/" /etc/minidlna.conf
 
-# Redémarre minidlna pour prendre en compte la nouvelle configuration
-sudo service minidlna restart
+#=================================================
+# RESTART MINIDLNA'S SERVICE
+#=================================================
 
-# Régénère la configuration de SSOwat
-sudo yunohost app ssowatconf
+# Redémarre minidlna pour prendre en compte la nouvelle configuration
+sudo systemctl restart minidlna

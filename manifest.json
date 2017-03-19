@@ -10,7 +10,7 @@
 		"fr": "Serveur DLNA léger pour partager les fichiers multimédia sur le réseau local"
 	},
 	"url": "http://minidlna.sourceforge.net/",
-	"license": "free",
+	"license": "GPLv2",
 	"maintainer": {
 		"name": "Maniack Crudelis",
 		"email": "maniackc_dev@crudelis.fr"
