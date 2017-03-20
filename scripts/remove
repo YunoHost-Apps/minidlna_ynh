@@ -71,5 +71,7 @@ if [ -e "/etc/sysctl.d/90-inotify_minidlna.conf" ]; then
 	echo "Delete kernel config"
 	sudo rm "/etc/sysctl.d/90-inotify_minidlna.conf"
 	# Et rechargement de la config du noyau.
-	sudo sysctl --system
+	if IS_PACKAGE_CHECK; then
+		sudo sysctl -p /etc/sysctl.d/90-inotify_minidlna.conf
+	fi
 fi

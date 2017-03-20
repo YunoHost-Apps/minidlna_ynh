@@ -79,8 +79,9 @@ ynh_app_setting_set $app version ${version:0:1}
 # Augmentation du nombre maximum de fichiers surveillés par inotify.
 sudo cp -a ../conf/90-inotify_minidlna.conf /etc/sysctl.d/
 # Et rechargement de la config du noyau.
-# sudo sysctl --system
-sudo sysctl -p /etc/sysctl.d/90-inotify_minidlna.conf
+if IS_PACKAGE_CHECK; then
+	sudo sysctl -p /etc/sysctl.d/90-inotify_minidlna.conf
+fi
 
 #=================================================
 # ENABLE SERVICE IN ADMIN PANEL

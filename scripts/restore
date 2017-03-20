@@ -68,7 +68,9 @@ fi
 #=================================================
 
 sudo cp -a ./inotify /etc/sysctl.d/90-inotify_minidlna.conf
-sudo sysctl --system
+if IS_PACKAGE_CHECK; then
+	sudo sysctl -p /etc/sysctl.d/90-inotify_minidlna.conf
+fi
 
 sudo cp -a ./minidlna.conf /etc/
 sudo systemctl restart minidlna
