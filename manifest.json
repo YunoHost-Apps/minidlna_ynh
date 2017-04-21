@@ -25,8 +25,8 @@
 					"en": "Select the minidlna version to install",
 					"fr": "Choix de la version de minidlna à installer"
 				},
-				"choices": ["A. Version of the Debian repositories (recommended)", "B. Latest version available for Debian"],
-				"default": "A. Version of the Debian repositories (recommended)"
+				"choices": ["A. Version of the Debian repositories - recommended", "B. Latest version available for Debian"],
+				"default": "A. Version of the Debian repositories - recommended"
 			}
 		]
 	}
