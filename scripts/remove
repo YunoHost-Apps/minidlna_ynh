@@ -35,16 +35,10 @@ fi
 #=================================================
 
 # Ferme les ports dans le firewall
-if sudo yunohost firewall list | grep -q "\- $port$"
-then
-	echo "Close port $port"
-	QUIET sudo yunohost firewall disallow TCP $port
-fi
-if sudo yunohost firewall list | grep -q "\- 1900$"
-then
-	echo "Close port 1900"
-	QUIET sudo yunohost firewall disallow UDP 1900
-fi
+WARNING sudo yunohost firewall list --raw
+ALL_QUIET sudo yunohost firewall disallow TCP $port
+ALL_QUIET sudo yunohost firewall disallow UDP 1900
+WARNING sudo yunohost firewall list --raw
 
 #=================================================
 # SPECIFIC REMOVE
@@ -57,10 +51,7 @@ if [ -e "/usr/sbin/minidlnad" ] || [ -e "/usr/bin/minidlnad" ]; then
 	echo "Remove minidlna package"
 	sudo apt-get -y purge minidlna
 fi
-if [ -e "/etc/apt/sources.list.d/minidlna.list" ]; then
-	echo "Delete sources.list config"
-	sudo rm "/etc/apt/sources.list.d/minidlna.list"
-fi
+ynh_secure_remove "/etc/apt/sources.list.d/minidlna.list"
 
 #=================================================
 # REMOVE INOTIFY'S CONFIG
@@ -69,7 +60,7 @@ fi
 # Suppression du paramètre inotify pour minidlna.
 if [ -e "/etc/sysctl.d/90-inotify_minidlna.conf" ]; then
 	echo "Delete kernel config"
-	sudo rm "/etc/sysctl.d/90-inotify_minidlna.conf"
+	ynh_secure_remove "/etc/sysctl.d/90-inotify_minidlna.conf"
 	# Et rechargement de la config du noyau.
 	if IS_PACKAGE_CHECK; then
 		sudo sysctl -p /etc/sysctl.d/90-inotify_minidlna.conf

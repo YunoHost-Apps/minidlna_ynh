@@ -38,17 +38,17 @@ version=$(ynh_app_setting_get $app version)
 # Copie des fichiers spécifiques à l'application
 if [ $version = "B" ]
 then
-	ynh_backup /etc/apt/sources.list.d/minidlna.list minidlna.list
+	ynh_backup_abstract /etc/apt/sources.list.d/minidlna.list minidlna.list
 fi
 
 #=================================================
 # BACKUP OF THE INOTIFY'S CONFIG
 #=================================================
 
-ynh_backup /etc/sysctl.d/90-inotify_minidlna.conf inotify
+ynh_backup_abstract /etc/sysctl.d/90-inotify_minidlna.conf inotify
 
 #=================================================
 # BACKUP OF THE CONFIG OF MINIDLNA
 #=================================================
 
-ynh_backup /etc/minidlna.conf minidlna.conf
+ynh_backup_abstract /etc/minidlna.conf minidlna.conf

@@ -43,7 +43,7 @@ sudo ./yunohost.multimedia-master/script/ynh_media_build.sh
 if [ $version = "B" ]
 then	# Installation de la version minidlna disponible dans backport. (En cas de problème avec la version actuelle des dépots)
 	codename=$(lsb_release -a 2>/dev/null | grep Codename | cut -f 2)
-	sudo sed -i "s@__CODENAME__@$codename@g" ../conf/minidlna.list
+	ynh_replace_string "__CODENAME__" "$codename" ../conf/minidlna.list
 	sudo cp -a ../conf/minidlna.list /etc/apt/sources.list.d/
 	sudo apt-get update
 	sudo apt-get -t $codename-backports -y install minidlna
@@ -75,11 +75,13 @@ sudo yunohost service add minidlna --log "/var/log/minidlna.log"
 #=================================================
 
 # Modifie la configuration de minidlna
-CHECK_MD5_CONFIG "minidlna.conf" "/etc/minidlna.conf"	# Créé un backup du fichier de config si il a été modifié.
-sudo sed -i 's@^#*media_dir=.*@media_dir=/home/yunohost.multimedia/share@' /etc/minidlna.conf
-sudo sed -i "s/^#*port=.*/port=$port/" /etc/minidlna.conf
-sudo sed -i "s/^#*friendly_name=.*/friendly_name=Yunohost DLNA/" /etc/minidlna.conf
-sudo sed -i "s/^#*root_container=.*/root_container=B/" /etc/minidlna.conf
+ynh_compare_checksum_config "/etc/minidlna.conf"	# Créé un backup du fichier de config si il a été modifié.
+ynh_replace_string "^#*media_dir=.*" "media_dir=/home/yunohost.multimedia/share" /etc/minidlna.conf
+ynh_replace_string "^#*port=.*" "port=$port" /etc/minidlna.conf
+ynh_replace_string "^#*friendly_name=.*" "friendly_name=Yunohost DLNA" /etc/minidlna.conf
+ynh_replace_string "^#*root_container=.*" "root_container=B" /etc/minidlna.conf
+ynh_replace_string "^#wide_links=" "wide_links=yes" /etc/minidlna.conf
+ynh_store_checksum_config "/etc/minidlna.conf"
 
 #=================================================
 # RESTART MINIDLNA'S SERVICE
