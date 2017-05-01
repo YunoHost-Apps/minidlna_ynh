@@ -1,7 +1,7 @@
 ;; Test paquet stable
 	auto_remove=1
 	; Manifest
-		version="A. Version of the Debian repositories (recommended)"
+		version="A. Version of the Debian repositories - recommended"
 	; Checks
 		pkg_linter=1
 		setup_sub_dir=0
