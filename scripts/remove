@@ -35,10 +35,8 @@ fi
 #=================================================
 
 # Ferme les ports dans le firewall
-WARNING sudo yunohost firewall list --raw
 ALL_QUIET sudo yunohost firewall disallow TCP $port
 ALL_QUIET sudo yunohost firewall disallow UDP 1900
-WARNING sudo yunohost firewall list --raw
 
 #=================================================
 # SPECIFIC REMOVE
