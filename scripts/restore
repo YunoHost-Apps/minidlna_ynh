@@ -36,10 +36,8 @@ port=$(ynh_app_setting_get $app port)
 # OPEN PORTS
 #=================================================
 
-WARNING sudo yunohost firewall list --raw
 ALL_QUIET sudo yunohost firewall allow --no-upnp TCP $port
 ALL_QUIET sudo yunohost firewall allow --no-upnp UDP 1900 # Découverte SSDP pour UPNP.
-WARNING sudo yunohost firewall list --raw
 
 #=================================================
 # CREATE YUNOHOST.MULTIMEDIA DIRECTORY
@@ -56,7 +54,7 @@ sudo ./yunohost.multimedia-master/script/ynh_media_build.sh
 if [ ${version:0:1} = "B" ]
 then	# Installation de la version minidlna disponible dans backport. (En cas de problème avec la version actuelle des dépots)
 	codename=$(lsb_release -a 2>/dev/null | grep Codename | cut -f 2)
-	ynh_restore_file minidlna.list
+	ynh_restore_file "/etc/apt/sources.list.d/minidlna.list"
 	ynh_replace_string " [a-z]*-backports" " $codename-backports" /etc/apt/sources.list.d/minidlna.list
 	sudo apt-get update
 	sudo apt-get -t $codename-backports -y install minidlna
@@ -69,13 +67,13 @@ fi
 # RESTORE INOTIFY'S CONFIG
 #=================================================
 
-ynh_restore_file inotify
+ynh_restore_file "/etc/sysctl.d/90-inotify_minidlna.conf"
 if IS_PACKAGE_CHECK; then
 	sudo sysctl -p /etc/sysctl.d/90-inotify_minidlna.conf
 fi
 
 ynh_secure_remove "/etc/minidlna.conf"	# Supprime la config pour la remplacer par celle du backup
-ynh_restore_file minidlna.conf
+ynh_restore_file "/etc/minidlna.conf"
 sudo systemctl restart minidlna
 
 #=================================================

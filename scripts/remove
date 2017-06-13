@@ -44,11 +44,7 @@ ALL_QUIET sudo yunohost firewall disallow UDP 1900
 # REMOVE MINIDNLA
 #=================================================
 
-# Suppression du paquet minidlna
-if [ -e "/usr/sbin/minidlnad" ] || [ -e "/usr/bin/minidlnad" ]; then
-	echo "Remove minidlna package"
-	sudo apt-get -y purge minidlna
-fi
+sudo apt-get -y purge minidlna
 ynh_secure_remove "/etc/apt/sources.list.d/minidlna.list"
 
 #=================================================

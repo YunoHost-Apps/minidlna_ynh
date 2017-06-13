@@ -75,13 +75,13 @@ sudo yunohost service add minidlna --log "/var/log/minidlna.log"
 #=================================================
 
 # Modifie la configuration de minidlna
-ynh_compare_checksum_config "/etc/minidlna.conf"	# Créé un backup du fichier de config si il a été modifié.
+ynh_backup_if_checksum_is_different "/etc/minidlna.conf"	# Créé un backup du fichier de config si il a été modifié.
 ynh_replace_string "^#*media_dir=.*" "media_dir=/home/yunohost.multimedia/share" /etc/minidlna.conf
 ynh_replace_string "^#*port=.*" "port=$port" /etc/minidlna.conf
 ynh_replace_string "^#*friendly_name=.*" "friendly_name=Yunohost DLNA" /etc/minidlna.conf
 ynh_replace_string "^#*root_container=.*" "root_container=B" /etc/minidlna.conf
 ynh_replace_string "^#wide_links=" "wide_links=yes" /etc/minidlna.conf
-ynh_store_checksum_config "/etc/minidlna.conf"
+ynh_store_file_checksum "/etc/minidlna.conf"
 
 #=================================================
 # RESTART MINIDLNA'S SERVICE
