@@ -22,11 +22,14 @@ port=$(ynh_app_setting_get $app port)
 # BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
 #=================================================
 
-BACKUP_BEFORE_UPGRADE	# Backup the current version of the app
+# Backup the current version of the app
+ynh_backup_before_upgrade
 ynh_clean_setup () {
-	BACKUP_FAIL_UPGRADE	# restore it if the upgrade fails
+	# restore it if the upgrade fails
+	ynh_restore_upgradebackup
 }
-ynh_abort_if_errors	# Active trap pour arrêter le script si une erreur est détectée.
+# Exit if an error occurs during the execution of the script
+ynh_abort_if_errors
 
 #=================================================
 # UPGRADE THE YUNOHOST.MULTIMEDIA DIRECTORY
@@ -34,7 +37,7 @@ ynh_abort_if_errors	# Active trap pour arrêter le script si une erreur est dét
 
 wget -nv https://github.com/maniackcrudelis/yunohost.multimedia/archive/master.zip
 unzip master.zip
-sudo ./yunohost.multimedia-master/script/ynh_media_build.sh
+./yunohost.multimedia-master/script/ynh_media_build.sh
 
 #=================================================
 # UPGRADE MINIDLNA
@@ -44,12 +47,12 @@ if [ $version = "B" ]
 then	# Installation de la version minidlna disponible dans backport. (En cas de problème avec la version actuelle des dépots)
 	codename=$(lsb_release -a 2>/dev/null | grep Codename | cut -f 2)
 	ynh_replace_string "__CODENAME__" "$codename" ../conf/minidlna.list
-	sudo cp -a ../conf/minidlna.list /etc/apt/sources.list.d/
-	sudo apt-get update
-	sudo apt-get -t $codename-backports -y install minidlna
+	cp -a ../conf/minidlna.list /etc/apt/sources.list.d/
+	apt-get update
+	apt-get -t $codename-backports -y install minidlna
 else	# Installation de la version minidlna des dépots courants.
-	sudo apt-get update
-	sudo apt-get -y install minidlna
+	apt-get update
+	apt-get -y install minidlna
 fi
 
 #=================================================
@@ -57,10 +60,10 @@ fi
 #=================================================
 
 # Augmentation du nombre maximum de fichiers surveillés par inotify.
-sudo cp -a ../conf/90-inotify_minidlna.conf /etc/sysctl.d/
+cp -a ../conf/90-inotify_minidlna.conf /etc/sysctl.d/
 # Et rechargement de la config du noyau.
 if IS_PACKAGE_CHECK; then
-	sudo sysctl -p /etc/sysctl.d/90-inotify_minidlna.conf
+	sysctl -p /etc/sysctl.d/90-inotify_minidlna.conf
 fi
 
 #=================================================
@@ -68,7 +71,7 @@ fi
 #=================================================
 
 # Ajoute le service au monitoring de Yunohost.
-sudo yunohost service add minidlna --log "/var/log/minidlna.log"
+yunohost service add minidlna --log "/var/log/minidlna.log"
 
 #=================================================
 # CONFIGURE MINIDLNA
@@ -88,4 +91,4 @@ ynh_store_file_checksum "/etc/minidlna.conf"
 #=================================================
 
 # Redémarre minidlna pour prendre en compte la nouvelle configuration
-sudo systemctl restart minidlna
+systemctl restart minidlna
