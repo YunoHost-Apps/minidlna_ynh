@@ -9,7 +9,7 @@ Minidlna does not have a graphical interface, but does not require any special c
 Minidlna sharing the folder /home/yunohost.multimedia/share, which is common to each user in /home/$USER/Multimedia/Share.
 [More information about multimedia files here.](Https://github.com/maniackcrudelis/yunohost.multimedia)
 
-~~If [transmission](https://github.com/Kloadut/transmission_ynh) is installed, the downloaded media will be available in dlna.~~
+If [transmission](https://github.com/Kloadut/transmission_ynh) is installed, the downloaded media will be available in dlna.
 
 ### How to view and play media files shared by minidlna?
 To view and play media files, all you need is a compatible client DLNA/UPNP.

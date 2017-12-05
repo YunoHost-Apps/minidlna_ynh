@@ -1,5 +1,4 @@
 ;; Test paquet stable
-	auto_remove=1
 	; Manifest
 		version="A. Version of the Debian repositories - recommended"
 	; Checks
@@ -10,12 +9,13 @@
 		setup_private=0
 		setup_public=0
 		upgrade=1
+		upgrade=1	from_commit=2c107b09144c9829be5cc94b202d0f766b2a0db4
 		backup_restore=1
 		multi_instance=0
 		incorrect_path=0
 		port_already_use=1	(48200)
+		change_url=0
 ;; Test paquet backports
-	auto_remove=1
 	; Manifest
 		version="B. Latest version available for Debian"
 	; Checks
@@ -36,8 +36,7 @@
 	Level 3=auto
 # Level 4: Pas de gestion des utilisateurs
 	Level 4=na
-# Level 5: https://github.com/YunoHost-Apps/minidlna_ynh/issues/2
-	Level 5=1
+	Level 5=auto
 	Level 6=auto
 	Level 7=auto
 	Level 8=0
@@ -46,3 +45,7 @@
 ;;; Options
 Email=
 Notification=down
+;;; Upgrade options
+	; commit=2c107b09144c9829be5cc94b202d0f766b2a0db4
+		name=01 May 2017 2c107b09144c9829be5cc94b202d0f766b2a0db4
+		manifest_arg=version=A. Version of the Debian repositories - recommended&
