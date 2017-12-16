@@ -26,7 +26,7 @@ port=$(ynh_app_setting_get $app port)
 # Retire le service du monitoring de Yunohost.
 if yunohost service status | grep -q minidlna	# Test l'existence du service dans Yunohost
 then
-	echo "Remove minidlna service"
+	ynh_print_info "Remove minidlna service" >&2
 	yunohost service remove minidlna
 fi
 
@@ -35,8 +35,8 @@ fi
 #=================================================
 
 # Ferme les ports dans le firewall
-ALL_QUIET yunohost firewall disallow TCP $port
-ALL_QUIET yunohost firewall disallow UDP 1900
+ynh_exec_fully_quiet yunohost firewall disallow TCP $port
+ynh_exec_fully_quiet yunohost firewall disallow UDP 1900
 
 #=================================================
 # SPECIFIC REMOVE
@@ -53,7 +53,7 @@ ynh_secure_remove "/etc/apt/sources.list.d/minidlna.list"
 
 # Suppression du paramètre inotify pour minidlna.
 if [ -e "/etc/sysctl.d/90-inotify_minidlna.conf" ]; then
-	echo "Delete kernel config"
+	ynh_print_info "Delete kernel config" >&2
 	ynh_secure_remove "/etc/sysctl.d/90-inotify_minidlna.conf"
 	# Et rechargement de la config du noyau.
 	if IS_PACKAGE_CHECK; then

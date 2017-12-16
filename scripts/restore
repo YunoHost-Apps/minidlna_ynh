@@ -36,8 +36,8 @@ port=$(ynh_app_setting_get $app port)
 # OPEN PORTS
 #=================================================
 
-ALL_QUIET yunohost firewall allow --no-upnp TCP $port
-ALL_QUIET yunohost firewall allow --no-upnp UDP 1900 # Découverte SSDP pour UPNP.
+ynh_exec_fully_quiet yunohost firewall allow --no-upnp TCP $port
+ynh_exec_fully_quiet yunohost firewall allow --no-upnp UDP 1900 # Découverte SSDP pour UPNP.
 
 #=================================================
 # CREATE YUNOHOST.MULTIMEDIA DIRECTORY
@@ -82,3 +82,17 @@ systemctl restart minidlna
 
 # Ajoute le service au monitoring de Yunohost.
 yunohost service add minidlna --log "/var/log/minidlna.log"
+
+#=================================================
+# SEND A README FOR THE ADMIN
+#=================================================
+
+message="You can find a config file at /etc/minidlna.conf
+
+MiniDLNA is going to serve the files present in the directory /home/yunohost.multimedia/share
+
+Please have a look to the documentation to learn more how to use MiniDLNA, https://yunohost.org/#/app_minidlna
+
+If you facing an issue or want to improve this app, please open a new issue in this project: https://github.com/YunoHost-Apps/minidlna_ynh"
+
+ynh_send_readme_to_admin "$message" "root"
