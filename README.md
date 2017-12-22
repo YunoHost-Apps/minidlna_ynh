@@ -1,21 +1,62 @@
-Serveur DLNA pour YunoHost
-==================
+# MiniDLNA for YunoHost
 
-[Yunohost project](https://yunohost.org/#/)
+[![Integration level](https://dash.yunohost.org/integration/minidlna.svg)](https://ci-apps.yunohost.org/jenkins/job/minidlna%20%28Community%29/lastBuild/consoleFull)  
+[![Install MiniDLNA with YunoHost](https://install-app.yunohost.org/install-with-yunohost.png)](https://install-app.yunohost.org/?app=minidlna)
 
-Serveur DLNA très léger pour partager simplement les fichiers multimédia avec l'ensemble des appareils compatibles sur le réseau local.
+*[Lire ce readme en français.](./README_fr.md)*
 
-http://minidlna.sourceforge.net/
+> *This package allow you to install MiniDLNA quickly and simply on a YunoHost server.  
+If you don't have YunoHost, please see [here](https://yunohost.org/#/install) to know how to install and enjoy it.*
 
-Le script installe les paquets *i965-va-driver*, *i965-va-driver*, *libavcodec56*, *libavformat56*, *libavresample2*, *libavutil54*, *libexif12* *libflac8* *libgsm1* *libid3tag0* *libmp3lame0* *libogg0* *libopenjpeg5 *libopus0* *liborc-0.4-0* *libschroedinger-1.0-0* *libspeex1* *libtheora0* *libva1* *libvdpau1* *libvorbis0a* *libvorbisenc2* *libx264-142* *libxvidcore4* *va-driver-all* *vdpau-va-driver*.
+## Overview
 
-[Documentation minidlna](https://yunohost.org/#/app_minidlna_fr) pour Yunohost.
+MiniDLNA is a simple media server software, with the aim of being fully compliant with DLNA/UPnP-AV clients.
 
-**Mise à jour du package:**  
-sudo yunohost app upgrade --verbose minidlna -u https://github.com/YunoHost-Apps/minidlna_ynh
+**Shipped version:** Debian repositories versions. Currently 1.1.2 and 1.1.6
 
-**Multi-utilisateur:** Pas de gestion des utilisateurs, les partages sont accessible librement.
+## Screenshots
 
-**Voir l'état du package:**  
-*[Dernier rapport hebdomadaire](https://forum.yunohost.org/t/rapport-hebdomadaire-dintegration-continue/2297)*  
-*[Dernier test d'intégration continue](https://ci-apps.yunohost.org/jenkins/job/minidlna%20%28Community%29/lastBuild/consoleFull)*
+## Configuration
+
+Edit the file `/etc/minidlna.conf` to adjust the configuration of MiniDLNA.
+
+## Documentation
+
+ * YunoHost documentation: https://yunohost.org/#/app_minidlna
+
+## YunoHost specific features
+
+* Use shared Multimedia Directories
+* Linked to transmission, nextcloud and all other app which use Multimedia Directories.
+
+#### Multi-users support
+
+Not relevant.
+
+#### Supported architectures
+
+* Tested on x86_64
+
+## Limitations
+
+## Additionnal informations
+
+## Links
+
+ * Report a bug: https://github.com/YunoHost-Apps/minidlna_ynh/issues
+ * MiniDLNA website: http://minidlna.sourceforge.net/
+ * YunoHost website: https://yunohost.org/
+
+---
+
+Developers infos
+----------------
+
+Please do your pull request to the [testing branch](https://github.com/YunoHost-Apps/minidlna_ynh/tree/testing).
+
+To try the testing branch, please proceed like that.
+```
+sudo yunohost app install https://github.com/YunoHost-Apps/minidlna_ynh/tree/testing --verbose
+or
+sudo yunohost app upgrade minidlna -u https://github.com/YunoHost-Apps/minidlna_ynh/tree/testing --verbose
+```

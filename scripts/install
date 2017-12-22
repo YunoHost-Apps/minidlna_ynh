@@ -38,8 +38,8 @@ test -z "$codename" && (ynh_die "codename empty")
 port=$(ynh_find_port 48200)	# Cherche un port libre.
 
 # Ouvre les ports dans le firewall
-ALL_QUIET sudo yunohost firewall allow --no-upnp TCP $port
-ALL_QUIET sudo yunohost firewall allow --no-upnp UDP 1900	# Découverte SSDP pour UPNP.
+ynh_exec_fully_quiet yunohost firewall allow --no-upnp TCP $port
+ynh_exec_fully_quiet yunohost firewall allow --no-upnp UDP 1900	# Découverte SSDP pour UPNP.
 ynh_app_setting_set $app port $port
 
 # Enregistre les infos dans la config YunoHost
@@ -49,9 +49,7 @@ ynh_app_setting_set $app version ${version:0:1}
 # CREATE YUNOHOST.MULTIMEDIA DIRECTORY
 #=================================================
 
-wget -nv https://github.com/YunoHost-Apps/yunohost.multimedia/archive/master.zip
-unzip master.zip
-sudo ./yunohost.multimedia-master/script/ynh_media_build.sh
+ynh_multimedia_build_main_dir
 
 #=================================================
 # SPECIFIC SETUP
@@ -63,12 +61,12 @@ sudo ./yunohost.multimedia-master/script/ynh_media_build.sh
 if [ ${version:0:1} = "B" ]
 then	# Installation de la version minidlna disponible dans backport. (En cas de problème avec la version actuelle des dépots)
 	ynh_replace_string "__CODENAME__" "$codename" ../conf/minidlna.list
-	sudo cp -a ../conf/minidlna.list /etc/apt/sources.list.d/
-	sudo apt-get update
-	sudo apt-get -t $codename-backports -y install minidlna
+	cp -a ../conf/minidlna.list /etc/apt/sources.list.d/
+	apt-get update
+	apt-get -t $codename-backports -y install minidlna
 else	# Installation de la version minidlna des dépots courants.
-	sudo apt-get update
-	sudo apt-get -y install minidlna
+	apt-get update
+	apt-get -y install minidlna
 fi
 ynh_app_setting_set $app version ${version:0:1}
 
@@ -77,10 +75,10 @@ ynh_app_setting_set $app version ${version:0:1}
 #=================================================
 
 # Augmentation du nombre maximum de fichiers surveillés par inotify.
-sudo cp -a ../conf/90-inotify_minidlna.conf /etc/sysctl.d/
+cp -a ../conf/90-inotify_minidlna.conf /etc/sysctl.d/
 # Et rechargement de la config du noyau.
 if IS_PACKAGE_CHECK; then
-	sudo sysctl -p /etc/sysctl.d/90-inotify_minidlna.conf
+	sysctl -p /etc/sysctl.d/90-inotify_minidlna.conf
 fi
 
 #=================================================
@@ -88,7 +86,7 @@ fi
 #=================================================
 
 # Ajoute le service au monitoring de Yunohost.
-sudo yunohost service add minidlna --log "/var/log/minidlna.log"
+yunohost service add minidlna --log "/var/log/minidlna.log"
 
 #=================================================
 # CONFIGURE MINIDLNA
@@ -107,4 +105,18 @@ ynh_store_file_checksum "/etc/minidlna.conf"	# Enregistre la somme de contrôle 
 #=================================================
 
 # Redémarre minidlna pour prendre en compte la nouvelle configuration
-sudo systemctl restart minidlna
+systemctl restart minidlna
+
+#=================================================
+# SEND A README FOR THE ADMIN
+#=================================================
+
+message="You can find a config file at /etc/minidlna.conf
+
+MiniDLNA is going to serve the files present in the directory /home/yunohost.multimedia/share
+
+Please have a look to the documentation to learn more how to use MiniDLNA, https://yunohost.org/#/app_minidlna
+
+If you facing an issue or want to improve this app, please open a new issue in this project: https://github.com/YunoHost-Apps/minidlna_ynh"
+
+ynh_send_readme_to_admin "$message" "root"
