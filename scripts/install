@@ -105,7 +105,7 @@ ynh_store_file_checksum "/etc/minidlna.conf"	# Enregistre la somme de contrôle 
 #=================================================
 
 # Redémarre minidlna pour prendre en compte la nouvelle configuration
-systemctl restart minidlna
+ynh_system_reload minidlna restart
 
 #=================================================
 # SEND A README FOR THE ADMIN

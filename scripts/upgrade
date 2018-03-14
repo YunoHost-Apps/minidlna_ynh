@@ -97,4 +97,4 @@ ynh_store_file_checksum "/etc/minidlna.conf"
 #=================================================
 
 # Redémarre minidlna pour prendre en compte la nouvelle configuration
-systemctl restart minidlna
+ynh_system_reload minidlna restart

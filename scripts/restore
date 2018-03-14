@@ -74,7 +74,7 @@ fi
 
 ynh_secure_remove "/etc/minidlna.conf"	# Supprime la config pour la remplacer par celle du backup
 ynh_restore_file "/etc/minidlna.conf"
-systemctl restart minidlna
+ynh_system_reload minidlna restart
 
 #=================================================
 # ENABLE SERVICE IN ADMIN PANEL
