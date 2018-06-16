@@ -1,6 +1,6 @@
 # MiniDLNA pour YunoHost
 
-[![Niveau d'intégration](https://dash.yunohost.org/integration/minidlna.svg)](https://ci-apps.yunohost.org/jenkins/job/minidlna%20%28Community%29/lastBuild/consoleFull)  
+[![Niveau d'intégration](https://dash.yunohost.org/integration/minidlna.svg)](https://dash.yunohost.org/appci/app/minidlna)  
 [![Installer MiniDLNA avec YunoHost](https://install-app.yunohost.org/install-with-yunohost.png)](https://install-app.yunohost.org/?app=minidlna)
 
 *[Read this readme in english.](./README.md)*
@@ -15,6 +15,10 @@ MiniDLNA est un simple serveur multimédia, dont le but est d'être entièrement
 **Version embarquée:** Versions des dépôts Debian. Actuellement 1.1.2 et 1.1.6
 
 ## Captures d'écran
+
+## Démo
+
+Aucune démo pour cette application.
 
 ## Configuration
 
@@ -36,7 +40,7 @@ Non applicable.
 #### Architectures supportées.
 
 * x86-64b - [![Build Status](https://ci-apps.yunohost.org/jenkins/job/minidlna%20(Community)/badge/icon)](https://ci-apps.yunohost.org/jenkins/job/minidlna%20(Community)/)
-* ARMv8-A - [![Build Status](https://ci-apps.yunohost.org/jenkins/job/minidlna%20(Community)%20(%7EARM%7E)/badge/icon)](https://ci-apps.yunohost.org/jenkins/job/minidlna%20(Community)%20(%7EARM%7E)/)
+* ARMv8-A - [![Build Status](https://ci-apps-arm.yunohost.org/jenkins/job/minidlna%20(Community)%20(%7EARM%7E)/badge/icon)](https://ci-apps-arm.yunohost.org/jenkins/job/minidlna%20(Community)%20(%7EARM%7E)/)
 
 ## Limitations
 
