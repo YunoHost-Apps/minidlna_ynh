@@ -68,7 +68,7 @@ fi
 #=================================================
 
 ynh_restore_file "/etc/sysctl.d/90-inotify_minidlna.conf"
-if IS_PACKAGE_CHECK; then
+if ! IS_PACKAGE_CHECK; then
 	sysctl -p /etc/sysctl.d/90-inotify_minidlna.conf
 fi
 

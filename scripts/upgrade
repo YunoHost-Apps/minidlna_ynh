@@ -68,7 +68,7 @@ fi
 # Augmentation du nombre maximum de fichiers surveillés par inotify.
 cp -a ../conf/90-inotify_minidlna.conf /etc/sysctl.d/
 # Et rechargement de la config du noyau.
-if IS_PACKAGE_CHECK; then
+if ! IS_PACKAGE_CHECK; then
 	sysctl -p /etc/sysctl.d/90-inotify_minidlna.conf
 fi
 

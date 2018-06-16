@@ -56,7 +56,7 @@ if [ -e "/etc/sysctl.d/90-inotify_minidlna.conf" ]; then
 	ynh_print_info "Delete kernel config" >&2
 	ynh_secure_remove "/etc/sysctl.d/90-inotify_minidlna.conf"
 	# Et rechargement de la config du noyau.
-	if IS_PACKAGE_CHECK; then
+	if ! IS_PACKAGE_CHECK; then
 		sysctl -p /etc/sysctl.d/90-inotify_minidlna.conf
 	fi
 fi
