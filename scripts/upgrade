@@ -17,12 +17,37 @@ app=$YNH_APP_INSTANCE_NAME
 
 version=$(ynh_app_setting_get $app version)
 port=$(ynh_app_setting_get $app port)
+overwrite_settings=$(ynh_app_setting_get $app overwrite_settings)
+root_container=$(ynh_app_setting_get $app root_container)
+friendly_name=$(ynh_app_setting_get $app friendly_name)
 
 #=================================================
 # CHECK VERSION
 #=================================================
 
 upgrade_type=$(ynh_check_app_version_changed)
+
+#=================================================
+# ENSURE DOWNWARD COMPATIBILITY
+#=================================================
+
+# If overwrite_settings doesn't exist, create it
+if [ -z "$overwrite_settings" ]; then
+	overwrite_settings=1
+	ynh_app_setting_set $app overwrite_settings $overwrite_settings
+fi
+
+# If root_container doesn't exist, create it
+if [ -z "$root_container" ]; then
+	root_container="B"
+	ynh_app_setting_set $app root_container $root_container
+fi
+
+# If friendly_name doesn't exist, create it
+if [ -z "$friendly_name" ]; then
+	friendly_name="Yunohost DLNA"
+	ynh_app_setting_set $app friendly_name $friendly_name
+fi
 
 #=================================================
 # BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
@@ -52,11 +77,11 @@ then	# Installation de la version minidlna disponible dans backport. (En cas de 
 	codename=$(lsb_release -a 2>/dev/null | grep Codename | cut -f 2)
 	ynh_replace_string "__CODENAME__" "$codename" ../conf/minidlna.list
 	cp -a ../conf/minidlna.list /etc/apt/sources.list.d/
-	apt-get update
-	apt-get -t $codename-backports -y install minidlna
+	ynh_apt update
+	ynh_package_install -t $codename-backports minidlna
 else	# Installation de la version minidlna des dépots courants.
-	apt-get update
-	apt-get -y install minidlna
+	ynh_apt update
+	ynh_package_install minidlna
 fi
 
 #=================================================
@@ -81,14 +106,18 @@ yunohost service add minidlna --log "/var/log/minidlna.log"
 # CONFIGURE MINIDLNA
 #=================================================
 
-# Modifie la configuration de minidlna
-ynh_backup_if_checksum_is_different "/etc/minidlna.conf"	# Créé un backup du fichier de config si il a été modifié.
-ynh_replace_string "^#*media_dir=.*" "media_dir=/home/yunohost.multimedia/share" /etc/minidlna.conf
-ynh_replace_string "^#*port=.*" "port=$port" /etc/minidlna.conf
-ynh_replace_string "^#*friendly_name=.*" "friendly_name=Yunohost DLNA" /etc/minidlna.conf
-ynh_replace_string "^#*root_container=.*" "root_container=B" /etc/minidlna.conf
-ynh_replace_string "^#wide_links=.*" "wide_links=yes" /etc/minidlna.conf
-ynh_store_file_checksum "/etc/minidlna.conf"
+# Overwrite the settings config file only if it's allowed
+if [ $overwrite_settings -eq 1 ]
+then
+	# Modifie la configuration de minidlna
+	ynh_backup_if_checksum_is_different "/etc/minidlna.conf"	# Créé un backup du fichier de config si il a été modifié.
+	ynh_replace_string "^#*media_dir=.*" "media_dir=/home/yunohost.multimedia/share" /etc/minidlna.conf
+	ynh_replace_string "^#*port=.*" "port=$port" /etc/minidlna.conf
+	ynh_replace_string "^#*friendly_name=.*" "friendly_name=$friendly_name" /etc/minidlna.conf
+	ynh_replace_string "^#*root_container=.*" "root_container=$root_container" /etc/minidlna.conf
+	ynh_replace_string "^#wide_links=.*" "wide_links=yes" /etc/minidlna.conf
+	ynh_store_file_checksum "/etc/minidlna.conf"
+fi
 
 #=================================================
 # RESTART MINIDLNA'S SERVICE

@@ -1,0 +1,37 @@
+#!/bin/bash
+
+#=================================================
+# GENERIC STARTING
+#=================================================
+# IMPORT GENERIC HELPERS
+#=================================================
+
+source scripts/_common.sh
+source /usr/share/yunohost/helpers
+
+#=================================================
+# RETRIEVE ARGUMENTS
+#=================================================
+
+app=${YNH_APP_INSTANCE_NAME:-$YNH_APP_ID}
+
+#=================================================
+# CHECK IF ARGUMENTS ARE CORRECT
+#=================================================
+
+#=================================================
+# CHECK IF AN ACTION HAS TO BE DONE
+#=================================================
+
+#=================================================
+# SPECIFIC ACTION
+#=================================================
+# LIST ALL PADS FROM THE DATABASE
+#=================================================
+
+# Get the last value for `db_dir` in the config file of minidlna
+db_directory=$(tac /etc/minidlna.conf | grep --max-count=1 "db_dir=" | cut -d'=' -f 2)
+
+ynh_system_reload --service_name=minidlna --action=stop
+ynh_secure_remove "$db_directory/files.db"
+ynh_system_reload --service_name=minidlna --action=start
