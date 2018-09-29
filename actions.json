@@ -1,0 +1,25 @@
+[{
+		"id": "install_standard",
+		"name": "Install the version from stable repository",
+		"command": "/bin/bash scripts/actions/install_standard",
+		"user": "root",
+		"accepted_return_codes": [0]
+},
+{
+		"id": "install_backports",
+		"name": "Install the version from backports repository",
+		"command": "/bin/bash scripts/actions/install_backports",
+		"user": "root",
+		"accepted_return_codes": [0]
+},
+{
+		"id": "reset_db",
+		"name": "Reinitialise the database",
+		"command": "/bin/bash scripts/actions/reset_db",
+		"user": "root",
+		"accepted_return_codes": [0],
+		"description": {
+			"en": "Remove the database and force Minidlna to create a new one.",
+			"fr": "Supprime la base de donnée et force Minidlna a en recréer une nouvelle."
+		}
+}]

@@ -1,0 +1,38 @@
+{
+	"name": "Minidlna configuration panel",
+	"version": "0.1",
+	"panel": [{
+		"name": "Minidlna configuration",
+		"id": "main",
+		"sections": [{
+			"name": "Minidlna configuration",
+			"id": "minidlna_configuration",
+			"options": [{
+				"name": "Type of directory shown to the clients ?",
+				"help": "We can't use a choices field for now. In the meantime please choose between one of this values:<br>Standard container, Browse Directory, Music, Pictures or Video.",
+				"id": "root_container",
+				"type": "text",
+				"//": "\"choices\" : [\"Standard container\", \"Browse Directory\", \"Music\", \"Pictures\", \"Video\"]",
+				"default" : "Browse Directory"
+			},
+			{
+				"name": "Name of DLNA server shown to clients ?",
+				"id": "friendly_name",
+				"type": "text",
+				"default": "Yunohost DLNA"
+			}]
+		},
+		{
+			"name": "Overwriting config files",
+			"id": "overwrite_files",
+			"options": [{
+				"name": "Overwrite the config file minidlna.conf ?",
+				"help": "If the file is overwritten, a backup will be created.",
+				"id": "overwrite_settings",
+				"type": "bool",
+				"default": true
+			}]
+		}]
+	}
+]
+}

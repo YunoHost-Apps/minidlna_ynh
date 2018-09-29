@@ -44,6 +44,7 @@ ynh_app_setting_set $app port $port
 
 # Enregistre les infos dans la config YunoHost
 ynh_app_setting_set $app version ${version:0:1}
+ynh_app_setting_set $app overwrite_settings "1"
 
 #=================================================
 # CREATE YUNOHOST.MULTIMEDIA DIRECTORY
@@ -62,11 +63,11 @@ if [ ${version:0:1} = "B" ]
 then	# Installation de la version minidlna disponible dans backport. (En cas de problème avec la version actuelle des dépots)
 	ynh_replace_string "__CODENAME__" "$codename" ../conf/minidlna.list
 	cp -a ../conf/minidlna.list /etc/apt/sources.list.d/
-	apt-get update
-	apt-get -t $codename-backports -y install minidlna
+	ynh_apt update
+	ynh_package_install -t $codename-backports minidlna
 else	# Installation de la version minidlna des dépots courants.
-	apt-get update
-	apt-get -y install minidlna
+	ynh_apt update
+	ynh_package_install minidlna
 fi
 ynh_app_setting_set $app version ${version:0:1}
 
@@ -95,8 +96,12 @@ yunohost service add minidlna --log "/var/log/minidlna.log"
 # Modifie la configuration de minidlna
 ynh_replace_string "^#*media_dir=.*" "media_dir=/home/yunohost.multimedia/share" /etc/minidlna.conf
 ynh_replace_string "^#*port=.*" "port=$port" /etc/minidlna.conf
-ynh_replace_string "^#*friendly_name=.*" "friendly_name=Yunohost DLNA" /etc/minidlna.conf
-ynh_replace_string "^#*root_container=.*" "root_container=B" /etc/minidlna.conf
+friendly_name="Yunohost DLNA"
+ynh_app_setting_set $app friendly_name "$friendly_name"
+ynh_replace_string "^#*friendly_name=.*" "friendly_name=$friendly_name" /etc/minidlna.conf
+root_container="B"
+ynh_replace_string "^#*root_container=.*" "root_container=$root_container" /etc/minidlna.conf
+ynh_app_setting_set $app root_container "$root_container"
 ynh_replace_string "^#wide_links=.*" "wide_links=yes" /etc/minidlna.conf
 ynh_store_file_checksum "/etc/minidlna.conf"	# Enregistre la somme de contrôle du fichier de config
 

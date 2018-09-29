@@ -49,11 +49,11 @@ then	# Installation de la version minidlna disponible dans backport. (En cas de 
 	codename=$(lsb_release -a 2>/dev/null | grep Codename | cut -f 2)
 	ynh_restore_file "/etc/apt/sources.list.d/minidlna.list"
 	ynh_replace_string " [a-z]*-backports" " $codename-backports" /etc/apt/sources.list.d/minidlna.list
-	apt-get update
-	apt-get -t $codename-backports -y install minidlna
+	ynh_apt update
+	ynh_package_install -t $codename-backports minidlna
 else	# Installation de la version minidlna des dépots courants.
-	apt-get update
-	apt-get -y install minidlna
+	ynh_apt update
+	ynh_package_install minidlna
 fi
 
 #=================================================
