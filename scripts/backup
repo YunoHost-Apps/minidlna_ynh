@@ -30,20 +30,19 @@ version=$(ynh_app_setting_get $app version)
 # BACKUP OF THE APT SOURCE
 #=================================================
 
-# Copie des fichiers spécifiques à l'application
 if [ $version = "B" ]
 then
 	ynh_backup "/etc/apt/sources.list.d/minidlna.list"
 fi
 
 #=================================================
-# BACKUP OF THE INOTIFY'S CONFIG
+# BACKUP OF INOTIFY'S CONFIG
 #=================================================
 
 ynh_backup "/etc/sysctl.d/90-inotify_minidlna.conf"
 
 #=================================================
-# BACKUP OF THE CONFIG OF MINIDLNA
+# BACKUP OF MINIDLNA CONFIGURATION
 #=================================================
 
 ynh_backup "/etc/minidlna.conf"
