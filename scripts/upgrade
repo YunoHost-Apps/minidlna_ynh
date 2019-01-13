@@ -74,7 +74,7 @@ ynh_multimedia_build_main_dir
 
 if [ $version = "B" ]
 then	# Installation de la version minidlna disponible dans backport. (En cas de problème avec la version actuelle des dépots)
-	codename=$(lsb_release -a 2>/dev/null | grep Codename | cut -f 2)
+	codename=$(ynh_debian_release)
 	ynh_replace_string "__CODENAME__" "$codename" ../conf/minidlna.list
 	cp -a ../conf/minidlna.list /etc/apt/sources.list.d/
 	ynh_apt update
@@ -124,4 +124,4 @@ fi
 #=================================================
 
 # Redémarre minidlna pour prendre en compte la nouvelle configuration
-ynh_system_reload --service_name=minidlna --action=restart
+ynh_systemd_action --action=restart --service_name=minidlna

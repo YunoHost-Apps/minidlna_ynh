@@ -32,6 +32,6 @@ app=${YNH_APP_INSTANCE_NAME:-$YNH_APP_ID}
 # Get the last value for `db_dir` in the config file of minidlna
 db_directory=$(tac /etc/minidlna.conf | grep --max-count=1 "db_dir=" | cut -d'=' -f 2)
 
-ynh_system_reload --service_name=minidlna --action=stop
+ynh_systemd_action --action=stop --service_name=minidlna
 ynh_secure_remove "$db_directory/files.db"
-ynh_system_reload --service_name=minidlna --action=start
+ynh_systemd_action --action=start --service_name=minidlna
