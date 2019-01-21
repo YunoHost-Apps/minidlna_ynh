@@ -87,12 +87,18 @@ yunohost service add minidlna --log "/var/log/minidlna.log"
 # SEND A README FOR THE ADMIN
 #=================================================
 
+# Get main domain and buid the url of the admin panel of the app.
+admin_panel="https://$(grep portal_domain /etc/ssowat/conf.json | cut -d'"' -f4)/yunohost/admin/#/apps/$app"
+
 message="You can find a config file at /etc/minidlna.conf
 
 MiniDLNA is going to serve the files present in the directory /home/yunohost.multimedia/share
 
 Please have a look to the documentation to learn more how to use MiniDLNA, https://yunohost.org/#/app_minidlna
 
+You can configure this app easily by using the experimental config-panel feature: $admin_panel/config-panel.
+You can also find some specific actions for this app by using the experimental action feature: $admin_panel/actions.
+
 If you're facing an issue or want to improve this app, please open a new issue in this project: https://github.com/YunoHost-Apps/minidlna_ynh"
 
-ynh_send_readme_to_admin --app_message="$message" --recipients="root"
+ynh_send_readme_to_admin --app_message="$message" --recipients="root" --type="restore"
