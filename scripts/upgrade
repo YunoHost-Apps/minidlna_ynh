@@ -73,13 +73,15 @@ ynh_multimedia_build_main_dir
 #=================================================
 
 if [ $version = "B" ]
-then	# Installation de la version minidlna disponible dans backport. (En cas de problème avec la version actuelle des dépots)
-	codename=$(lsb_release -a 2>/dev/null | grep Codename | cut -f 2)
+then
+	# Install the backport version. (If you have issues with the standard version from the stable repository)
+	codename=$(ynh_debian_release)
 	ynh_replace_string "__CODENAME__" "$codename" ../conf/minidlna.list
 	cp -a ../conf/minidlna.list /etc/apt/sources.list.d/
 	ynh_apt update
 	ynh_package_install -t $codename-backports minidlna
-else	# Installation de la version minidlna des dépots courants.
+else
+	# Install the standard version from debian repository
 	ynh_apt update
 	ynh_package_install minidlna
 fi
@@ -88,18 +90,17 @@ fi
 # INCREASE INOTIFY'S LIMITS
 #=================================================
 
-# Augmentation du nombre maximum de fichiers surveillés par inotify.
+# Increase the maximum number of files inotify can monitor.
 cp -a ../conf/90-inotify_minidlna.conf /etc/sysctl.d/
-# Et rechargement de la config du noyau.
+# Then, reload the kernel configuration.
 if ! IS_PACKAGE_CHECK; then
 	sysctl -p /etc/sysctl.d/90-inotify_minidlna.conf
 fi
 
 #=================================================
-# ENABLE SERVICE IN ADMIN PANEL
+# ADVERTISE SERVICE IN ADMIN PANEL
 #=================================================
 
-# Ajoute le service au monitoring de Yunohost.
 yunohost service add minidlna --log "/var/log/minidlna.log"
 
 #=================================================
@@ -109,13 +110,16 @@ yunohost service add minidlna --log "/var/log/minidlna.log"
 # Overwrite the settings config file only if it's allowed
 if [ $overwrite_settings -eq 1 ]
 then
-	# Modifie la configuration de minidlna
-	ynh_backup_if_checksum_is_different "/etc/minidlna.conf"	# Créé un backup du fichier de config si il a été modifié.
+	# Verify the checksum of a file, stored by `ynh_store_file_checksum` in the install script.
+	ynh_backup_if_checksum_is_different "/etc/minidlna.conf"
+
 	ynh_replace_string "^#*media_dir=.*" "media_dir=/home/yunohost.multimedia/share" /etc/minidlna.conf
 	ynh_replace_string "^#*port=.*" "port=$port" /etc/minidlna.conf
 	ynh_replace_string "^#*friendly_name=.*" "friendly_name=$friendly_name" /etc/minidlna.conf
 	ynh_replace_string "^#*root_container=.*" "root_container=$root_container" /etc/minidlna.conf
 	ynh_replace_string "^#wide_links=.*" "wide_links=yes" /etc/minidlna.conf
+
+	# Calculate and store the config file checksum into the app settings
 	ynh_store_file_checksum "/etc/minidlna.conf"
 fi
 
@@ -123,5 +127,24 @@ fi
 # RESTART MINIDLNA'S SERVICE
 #=================================================
 
-# Redémarre minidlna pour prendre en compte la nouvelle configuration
-ynh_system_reload --service_name=minidlna --action=restart
+ynh_systemd_action --action=restart --service_name=minidlna
+
+#=================================================
+# SEND A README FOR THE ADMIN
+#=================================================
+
+# Get main domain and buid the url of the admin panel of the app.
+admin_panel="https://$(grep portal_domain /etc/ssowat/conf.json | cut -d'"' -f4)/yunohost/admin/#/apps/$app"
+
+message="You can find a config file at /etc/minidlna.conf
+
+MiniDLNA is going to serve the files present in the directory /home/yunohost.multimedia/share
+
+Please have a look to the documentation to learn more how to use MiniDLNA, https://yunohost.org/#/app_minidlna
+
+You can configure this app easily by using the experimental config-panel feature: $admin_panel/config-panel.
+You can also find some specific actions for this app by using the experimental action feature: $admin_panel/actions.
+
+If you're facing an issue or want to improve this app, please open a new issue in this project: https://github.com/YunoHost-Apps/minidlna_ynh"
+
+ynh_send_readme_to_admin --app_message="$message" --recipients="root" --type="upgrade"

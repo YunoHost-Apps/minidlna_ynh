@@ -38,7 +38,7 @@ fi
 ynh_package_remove minidlna
 
 # Then install the version from backports
-codename=$(lsb_release -a 2>/dev/null | grep Codename | cut -f 2)
+codename=$(ynh_debian_release)
 test -z "$codename" && (ynh_die "codename empty")
 
 ynh_replace_string "__CODENAME__" "$codename" /etc/yunohost/apps/$app/conf/minidlna.list

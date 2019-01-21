@@ -113,7 +113,7 @@ apply_config() {
 
 	if [ $restart_minidlna -eq 1 ]
 	then
-		ynh_system_reload --service_name=minidlna --action=restart
+		ynh_systemd_action --action=restart --service_name=minidlna
 	fi
 
 	# Set overwrite_settings

@@ -39,9 +39,9 @@ Non applicable.
 
 #### Architectures supportées.
 
-* x86-64b - [![Build Status](https://ci-apps.yunohost.org/jenkins/job/minidlna%20(Community)/badge/icon)](https://ci-apps.yunohost.org/jenkins/job/minidlna%20(Community)/)
-* ARMv8-A - [![Build Status](https://ci-apps-arm.yunohost.org/jenkins/job/minidlna%20(Community)%20(%7EARM%7E)/badge/icon)](https://ci-apps-arm.yunohost.org/jenkins/job/minidlna%20(Community)%20(%7EARM%7E)/)
-* Jessie x86-64b - [![Build Status](https://ci-stretch.nohost.me/jenkins/job/minidlna%20(Community)/badge/icon)](https://ci-stretch.nohost.me/jenkins/job/minidlna%20(Community)/)
+* x86-64b - [![](https://ci-apps.yunohost.org/ci/logs/minidlna%20%28Community%29.svg)](https://ci-apps.yunohost.org/ci/apps/minidlna/)
+* ARMv8-A - [![](https://ci-apps-arm.yunohost.org/ci/logs/minidlna%20%28Community%29.svg)](https://ci-apps-arm.yunohost.org/ci/apps/minidlna/)
+* Jessie x86-64b - [![](https://ci-stretch.nohost.me/ci/logs/minidlna%20%28Community%29.svg)](https://ci-stretch.nohost.me/ci/apps/minidlna/)
 
 ## Limitations
 
@@ -62,7 +62,7 @@ Merci de faire vos pull request sur la [branche testing](https://github.com/Yuno
 
 Pour tester la branche testing, merci de procéder ainsi.
 ```
-sudo yunohost app install https://github.com/YunoHost-Apps/minidlna_ynh/tree/testing --verbose
+sudo yunohost app install https://github.com/YunoHost-Apps/minidlna_ynh/tree/testing --debug
 ou
-sudo yunohost app upgrade minidlna -u https://github.com/YunoHost-Apps/minidlna_ynh/tree/testing --verbose
+sudo yunohost app upgrade minidlna -u https://github.com/YunoHost-Apps/minidlna_ynh/tree/testing --debug
 ```

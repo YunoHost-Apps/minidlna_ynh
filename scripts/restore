@@ -32,7 +32,8 @@ port=$(ynh_app_setting_get $app port)
 #=================================================
 
 ynh_exec_fully_quiet yunohost firewall allow --no-upnp TCP $port
-ynh_exec_fully_quiet yunohost firewall allow --no-upnp UDP 1900 # Découverte SSDP pour UPNP.
+# Discovery Protocol SSDP for UPNP.
+ynh_exec_fully_quiet yunohost firewall allow --no-upnp UDP 1900
 
 #=================================================
 # CREATE YUNOHOST.MULTIMEDIA DIRECTORY
@@ -45,13 +46,15 @@ ynh_multimedia_build_main_dir
 #=================================================
 
 if [ ${version:0:1} = "B" ]
-then	# Installation de la version minidlna disponible dans backport. (En cas de problème avec la version actuelle des dépots)
-	codename=$(lsb_release -a 2>/dev/null | grep Codename | cut -f 2)
+then
+	# Install the backport version. (If you have issues with the standard version from the stable repository)
+	codename=$(ynh_debian_release)
 	ynh_restore_file "/etc/apt/sources.list.d/minidlna.list"
 	ynh_replace_string " [a-z]*-backports" " $codename-backports" /etc/apt/sources.list.d/minidlna.list
 	ynh_apt update
 	ynh_package_install -t $codename-backports minidlna
-else	# Installation de la version minidlna des dépots courants.
+else
+	# Install the standard version from debian repository
 	ynh_apt update
 	ynh_package_install minidlna
 fi
@@ -65,20 +68,27 @@ if ! IS_PACKAGE_CHECK; then
 	sysctl -p /etc/sysctl.d/90-inotify_minidlna.conf
 fi
 
-ynh_secure_remove "/etc/minidlna.conf"	# Supprime la config pour la remplacer par celle du backup
+#=================================================
+# RESTORE MINIDLNA CONFIGURATION
+#=================================================
+
+# Delete the current config of minidlna, in order to replace it by the version from the backup
+ynh_secure_remove "/etc/minidlna.conf"
 ynh_restore_file "/etc/minidlna.conf"
-ynh_system_reload --service_name=minidlna --action=restart
+ynh_systemd_action --action=restart --service_name=minidlna
 
 #=================================================
-# ENABLE SERVICE IN ADMIN PANEL
+# ADVERTISE SERVICE IN ADMIN PANEL
 #=================================================
 
-# Ajoute le service au monitoring de Yunohost.
 yunohost service add minidlna --log "/var/log/minidlna.log"
 
 #=================================================
 # SEND A README FOR THE ADMIN
 #=================================================
+
+# Get main domain and buid the url of the admin panel of the app.
+admin_panel="https://$(grep portal_domain /etc/ssowat/conf.json | cut -d'"' -f4)/yunohost/admin/#/apps/$app"
 
 message="You can find a config file at /etc/minidlna.conf
 
@@ -86,6 +96,9 @@ MiniDLNA is going to serve the files present in the directory /home/yunohost.mul
 
 Please have a look to the documentation to learn more how to use MiniDLNA, https://yunohost.org/#/app_minidlna
 
-If you facing an issue or want to improve this app, please open a new issue in this project: https://github.com/YunoHost-Apps/minidlna_ynh"
+You can configure this app easily by using the experimental config-panel feature: $admin_panel/config-panel.
+You can also find some specific actions for this app by using the experimental action feature: $admin_panel/actions.
 
-ynh_send_readme_to_admin --app_message="$message" --recipients="root"
+If you're facing an issue or want to improve this app, please open a new issue in this project: https://github.com/YunoHost-Apps/minidlna_ynh"
+
+ynh_send_readme_to_admin --app_message="$message" --recipients="root" --type="restore"
