@@ -12,6 +12,7 @@ source /usr/share/yunohost/helpers
 #=================================================
 # RETRIEVE ARGUMENTS
 #=================================================
+ynh_script_progression --message="Retrieve arguments from the manifest"
 
 app=${YNH_APP_INSTANCE_NAME:-$YNH_APP_ID}
 
@@ -33,6 +34,7 @@ fi
 #=================================================
 # RE-INSTALL MINIDLNA FROM BACKPORTS
 #=================================================
+ynh_script_progression --message="Re-install minidlna from backports" --weight=9
 
 # Remove the current version of minidlna
 ynh_package_remove minidlna
@@ -45,3 +47,9 @@ ynh_replace_string "__CODENAME__" "$codename" /etc/yunohost/apps/$app/conf/minid
 cp -a /etc/yunohost/apps/$app/conf/minidlna.list /etc/apt/sources.list.d/
 ynh_apt update
 ynh_package_install -t $codename-backports minidlna
+
+#=================================================
+# END OF SCRIPT
+#=================================================
+
+ynh_script_progression --message="Execution completed" --last

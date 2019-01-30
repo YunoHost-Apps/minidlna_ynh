@@ -12,6 +12,7 @@ source /usr/share/yunohost/helpers
 #=================================================
 # LOAD SETTINGS
 #=================================================
+ynh_script_progression --message="Load settings" --weight=2
 
 app=$YNH_APP_INSTANCE_NAME
 
@@ -33,6 +34,7 @@ fi
 #=================================================
 # CLOSE PORTS
 #=================================================
+ynh_script_progression --message="Close ports" --weight=15
 
 ynh_exec_fully_quiet yunohost firewall disallow TCP $port
 ynh_exec_fully_quiet yunohost firewall disallow UDP 1900
@@ -42,6 +44,7 @@ ynh_exec_fully_quiet yunohost firewall disallow UDP 1900
 #=================================================
 # REMOVE MINIDNLA
 #=================================================
+ynh_script_progression --message="Remove MiniDLNA" --weight=6
 
 ynh_apt purge minidlna
 ynh_secure_remove "/etc/apt/sources.list.d/minidlna.list"
@@ -49,6 +52,7 @@ ynh_secure_remove "/etc/apt/sources.list.d/minidlna.list"
 #=================================================
 # REMOVE INOTIFY'S CONFIG
 #=================================================
+ynh_script_progression --message="Remove inotify's config"
 
 if [ -e "/etc/sysctl.d/90-inotify_minidlna.conf" ]; then
 	ynh_print_info "Delete kernel config" >&2
@@ -58,3 +62,9 @@ if [ -e "/etc/sysctl.d/90-inotify_minidlna.conf" ]; then
 		sysctl -p /etc/sysctl.d/90-inotify_minidlna.conf
 	fi
 fi
+
+#=================================================
+# END OF SCRIPT
+#=================================================
+
+ynh_script_progression --message="Deletion completed" --last

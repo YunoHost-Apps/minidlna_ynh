@@ -12,6 +12,7 @@ source /usr/share/yunohost/helpers
 #=================================================
 # RETRIEVE ARGUMENTS
 #=================================================
+ynh_script_progression --message="Retrieve arguments from the manifest"
 
 app=${YNH_APP_INSTANCE_NAME:-$YNH_APP_ID}
 
@@ -26,8 +27,9 @@ app=${YNH_APP_INSTANCE_NAME:-$YNH_APP_ID}
 #=================================================
 # SPECIFIC ACTION
 #=================================================
-# LIST ALL PADS FROM THE DATABASE
+# RESET THE DATABASE
 #=================================================
+ynh_script_progression --message="Reset the database" --weight=9
 
 # Get the last value for `db_dir` in the config file of minidlna
 db_directory=$(tac /etc/minidlna.conf | grep --max-count=1 "db_dir=" | cut -d'=' -f 2)
@@ -35,3 +37,9 @@ db_directory=$(tac /etc/minidlna.conf | grep --max-count=1 "db_dir=" | cut -d'='
 ynh_systemd_action --action=stop --service_name=minidlna
 ynh_secure_remove "$db_directory/files.db"
 ynh_systemd_action --action=start --service_name=minidlna
+
+#=================================================
+# END OF SCRIPT
+#=================================================
+
+ynh_script_progression --message="Execution completed" --last

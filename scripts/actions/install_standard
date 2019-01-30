@@ -31,6 +31,7 @@ fi
 #=================================================
 # RE-INSTALL MINIDLNA FROM STABLE
 #=================================================
+ynh_script_progression --message="Re-install minidlna from stable" --weight=9
 
 # Remove the current version of minidlna
 ynh_package_remove minidlna
@@ -38,3 +39,9 @@ ynh_secure_remove "/etc/apt/sources.list.d/minidlna.list"
 
 ynh_apt update
 ynh_package_install minidlna
+
+#=================================================
+# END OF SCRIPT
+#=================================================
+
+ynh_script_progression --message="Execution completed" --last
