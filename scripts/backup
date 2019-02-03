@@ -19,6 +19,7 @@ ynh_abort_if_errors
 #=================================================
 # LOAD SETTINGS
 #=================================================
+ynh_script_progression --message="Load settings"
 
 app=$YNH_APP_INSTANCE_NAME
 
@@ -32,17 +33,26 @@ version=$(ynh_app_setting_get $app version)
 
 if [ $version = "B" ]
 then
+	ynh_script_progression --message="Backup of the APT source"
 	ynh_backup "/etc/apt/sources.list.d/minidlna.list"
 fi
 
 #=================================================
 # BACKUP OF INOTIFY'S CONFIG
 #=================================================
+ynh_script_progression --message="Backup of inotify's config"
 
 ynh_backup "/etc/sysctl.d/90-inotify_minidlna.conf"
 
 #=================================================
 # BACKUP OF MINIDLNA CONFIGURATION
 #=================================================
+ynh_script_progression --message="Backup of minidlna configuration"
 
 ynh_backup "/etc/minidlna.conf"
+
+#=================================================
+# END OF SCRIPT
+#=================================================
+
+ynh_script_progression --message="Backup completed" --last

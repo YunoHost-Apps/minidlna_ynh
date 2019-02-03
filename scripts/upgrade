@@ -12,6 +12,7 @@ source /usr/share/yunohost/helpers
 #=================================================
 # LOAD SETTINGS
 #=================================================
+ynh_script_progression --message="Load settings" --weight=2
 
 app=$YNH_APP_INSTANCE_NAME
 
@@ -30,6 +31,7 @@ upgrade_type=$(ynh_check_app_version_changed)
 #=================================================
 # ENSURE DOWNWARD COMPATIBILITY
 #=================================================
+ynh_script_progression --message="Ensure downward compatibility"
 
 # If overwrite_settings doesn't exist, create it
 if [ -z "$overwrite_settings" ]; then
@@ -52,6 +54,7 @@ fi
 #=================================================
 # BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
 #=================================================
+ynh_script_progression --message="Backup the app before upgrading" --weight=2
 
 # Backup the current version of the app
 ynh_backup_before_upgrade
@@ -65,12 +68,14 @@ ynh_abort_if_errors
 #=================================================
 # UPGRADE THE YUNOHOST.MULTIMEDIA DIRECTORY
 #=================================================
+ynh_script_progression --message="Upgrade the yunohost.multimedia directory" --weight=3
 
 ynh_multimedia_build_main_dir
 
 #=================================================
 # UPGRADE MINIDLNA
 #=================================================
+ynh_script_progression --message="Upgrade MiniDLNA" --weight=3
 
 if [ $version = "B" ]
 then
@@ -89,6 +94,7 @@ fi
 #=================================================
 # INCREASE INOTIFY'S LIMITS
 #=================================================
+ynh_script_progression --message="Increase inotify's limits" --weight=2
 
 # Increase the maximum number of files inotify can monitor.
 cp -a ../conf/90-inotify_minidlna.conf /etc/sysctl.d/
@@ -106,6 +112,7 @@ yunohost service add minidlna --log "/var/log/minidlna.log"
 #=================================================
 # CONFIGURE MINIDLNA
 #=================================================
+ynh_script_progression --message="Reconfigure MiniDLNA" --weight=2
 
 # Overwrite the settings config file only if it's allowed
 if [ $overwrite_settings -eq 1 ]
@@ -126,6 +133,7 @@ fi
 #=================================================
 # RESTART MINIDLNA'S SERVICE
 #=================================================
+ynh_script_progression --message="Restart MiniDLNA" --weight=7
 
 ynh_systemd_action --action=restart --service_name=minidlna
 
@@ -136,15 +144,29 @@ ynh_systemd_action --action=restart --service_name=minidlna
 # Get main domain and buid the url of the admin panel of the app.
 admin_panel="https://$(grep portal_domain /etc/ssowat/conf.json | cut -d'"' -f4)/yunohost/admin/#/apps/$app"
 
-message="You can find a config file at /etc/minidlna.conf
+# Build the changelog
+ynh_app_changelog || true
+
+echo "You can find a config file at /etc/minidlna.conf
 
 MiniDLNA is going to serve the files present in the directory /home/yunohost.multimedia/share
 
 Please have a look to the documentation to learn more how to use MiniDLNA, https://yunohost.org/#/app_minidlna
 
-You can configure this app easily by using the experimental config-panel feature: $admin_panel/config-panel.
-You can also find some specific actions for this app by using the experimental action feature: $admin_panel/actions.
+You can configure this app easily by using the experimental __URL_TAG1__config-panel feature__URL_TAG2__$admin_panel/config-panel__URL_TAG3__.
+You can also find some specific actions for this app by using the experimental __URL_TAG1__action feature__URL_TAG2__$admin_panel/actions__URL_TAG3__.
 
-If you're facing an issue or want to improve this app, please open a new issue in this project: https://github.com/YunoHost-Apps/minidlna_ynh"
+If you're facing an issue or want to improve this app, please open a new issue in this __URL_TAG1__project__URL_TAG2__https://github.com/YunoHost-Apps/minidlna_ynh__URL_TAG3__.
 
-ynh_send_readme_to_admin --app_message="$message" --recipients="root" --type="upgrade"
+---
+
+Changelog since your last upgrade:
+$(cat changelog)" > mail_to_send
+
+ynh_send_readme_to_admin --app_message="mail_to_send" --recipients="root" --type="upgrade"
+
+#=================================================
+# END OF SCRIPT
+#=================================================
+
+ynh_script_progression --message="Upgrade completed" --last

@@ -19,6 +19,7 @@ ynh_abort_if_errors
 #=================================================
 # RETRIEVE ARGUMENTS FROM THE MANIFEST
 #=================================================
+ynh_script_progression --message="Retrieve arguments from the manifest"
 
 version="$YNH_APP_ARG_VERSION"
 app=$YNH_APP_INSTANCE_NAME
@@ -26,13 +27,17 @@ app=$YNH_APP_INSTANCE_NAME
 #=================================================
 # STORE SETTINGS FROM MANIFEST
 #=================================================
+ynh_script_progression --message="Store settings from manifest" --weight=2
 
 ynh_app_setting_set $app version ${version:0:1}
+
 ynh_app_setting_set $app overwrite_settings "1"
+ynh_app_setting_set $app admin_mail_html "1"
 
 #=================================================
-# CHECK THE DEBIAN'S CODENAME
+# CHECK DEBIAN'S CODENAME
 #=================================================
+ynh_script_progression --message="Check debian's codename"
 
 codename=$(ynh_debian_release)
 test -z "$codename" && (ynh_die "codename empty")
@@ -42,6 +47,7 @@ test -z "$codename" && (ynh_die "codename empty")
 #=================================================
 # FIND AND OPEN A PORT
 #=================================================
+ynh_script_progression --message="Find and open a port" --weight=15
 
 # Find a free port
 port=$(ynh_find_port 48200)
@@ -55,6 +61,7 @@ ynh_app_setting_set $app port $port
 #=================================================
 # CREATE YUNOHOST.MULTIMEDIA DIRECTORY
 #=================================================
+ynh_script_progression --message="Create yunohost.multimedia directory" --weight=8
 
 ynh_multimedia_build_main_dir
 
@@ -63,6 +70,7 @@ ynh_multimedia_build_main_dir
 #=================================================
 # INSTALL MINIDLNA
 #=================================================
+ynh_script_progression --message="Install minidlna" --weight=45
 
 if [ ${version:0:1} = "B" ]
 then
@@ -81,6 +89,7 @@ ynh_app_setting_set $app version ${version:0:1}
 #=================================================
 # INCREASE INOTIFY'S LIMITS
 #=================================================
+ynh_script_progression --message="Increase inotify's limits"
 
 # Increase the maximum number of files inotify can monitor.
 cp -a ../conf/90-inotify_minidlna.conf /etc/sysctl.d/
@@ -98,6 +107,7 @@ yunohost service add minidlna --log "/var/log/minidlna.log"
 #=================================================
 # CONFIGURE MINIDLNA
 #=================================================
+ynh_script_progression --message="Configure MiniDLNA" --weight=2
 
 ynh_replace_string "^#*media_dir=.*" "media_dir=/home/yunohost.multimedia/share" /etc/minidlna.conf
 ynh_replace_string "^#*port=.*" "port=$port" /etc/minidlna.conf
@@ -115,6 +125,7 @@ ynh_store_file_checksum "/etc/minidlna.conf"
 #=================================================
 # RESTART MINIDLNA
 #=================================================
+ynh_script_progression --message="Restart MiniDLNA" --weight=4
 
 ynh_systemd_action --action=restart --service_name=minidlna
 
@@ -125,15 +136,21 @@ ynh_systemd_action --action=restart --service_name=minidlna
 # Get main domain and buid the url of the admin panel of the app.
 admin_panel="https://$(grep portal_domain /etc/ssowat/conf.json | cut -d'"' -f4)/yunohost/admin/#/apps/$app"
 
-message="You can find a config file at /etc/minidlna.conf
+echo "You can find a config file at /etc/minidlna.conf
 
 MiniDLNA is going to serve the files present in the directory /home/yunohost.multimedia/share
 
 Please have a look to the documentation to learn more how to use MiniDLNA, https://yunohost.org/#/app_minidlna
 
-You can configure this app easily by using the experimental config-panel feature: $admin_panel/config-panel.
-You can also find some specific actions for this app by using the experimental action feature: $admin_panel/actions.
+You can configure this app easily by using the experimental __URL_TAG1__config-panel feature__URL_TAG2__$admin_panel/config-panel__URL_TAG3__.
+You can also find some specific actions for this app by using the experimental __URL_TAG1__action feature__URL_TAG2__$admin_panel/actions__URL_TAG3__.
 
-If you're facing an issue or want to improve this app, please open a new issue in this project: https://github.com/YunoHost-Apps/minidlna_ynh"
+If you're facing an issue or want to improve this app, please open a new issue in this __URL_TAG1__project__URL_TAG2__https://github.com/YunoHost-Apps/minidlna_ynh__URL_TAG3__." > mail_to_send
 
-ynh_send_readme_to_admin --app_message="$message" --recipients="root" --type="install"
+ynh_send_readme_to_admin --app_message="mail_to_send" --recipients="root" --type="install"
+
+#=================================================
+# END OF SCRIPT
+#=================================================
+
+ynh_script_progression --message="Installation completed" --last
