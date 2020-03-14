@@ -19,49 +19,49 @@ ynh_abort_if_errors
 #=================================================
 # RETRIEVE ARGUMENTS FROM THE MANIFEST
 #=================================================
-ynh_script_progression --message="Retrieve arguments from the manifest"
 
 version="$YNH_APP_ARG_VERSION"
+
 app=$YNH_APP_INSTANCE_NAME
 
 #=================================================
 # STORE SETTINGS FROM MANIFEST
 #=================================================
-ynh_script_progression --message="Store settings from manifest" --weight=2
+ynh_script_progression --message="Storing installation settings..." --weight=2
 
-ynh_app_setting_set $app version ${version:0:1}
+ynh_app_setting_set --app=$app --key=version --value=${version:0:1}
 
-ynh_app_setting_set $app overwrite_settings "1"
-ynh_app_setting_set $app admin_mail_html "1"
+ynh_app_setting_set --app=$app --key=overwrite_settings --value=1
+ynh_app_setting_set --app=$app --key=admin_mail_html --value=1
 
 #=================================================
 # CHECK DEBIAN'S CODENAME
 #=================================================
-ynh_script_progression --message="Check debian's codename"
+ynh_script_progression --message="Checking debian's codename..."
 
 codename=$(ynh_debian_release)
-test -z "$codename" && (ynh_die "codename empty")
+test -z "$codename" && (ynh_die --message="codename empty")
 
 #=================================================
 # STANDARD MODIFICATIONS
 #=================================================
 # FIND AND OPEN A PORT
 #=================================================
-ynh_script_progression --message="Find and open a port" --weight=15
+ynh_script_progression --message="Configuring firewall..." --weight=15
 
 # Find a free port
-port=$(ynh_find_port 48200)
+port=$(ynh_find_port --port=48200)
 
 # Open ports
 ynh_exec_fully_quiet yunohost firewall allow --no-upnp TCP $port
 # Discovery Protocol SSDP for UPNP.
 ynh_exec_fully_quiet yunohost firewall allow --no-upnp UDP 1900
-ynh_app_setting_set $app port $port
+ynh_app_setting_set --app=$app --key=port --value=$port
 
 #=================================================
 # CREATE YUNOHOST.MULTIMEDIA DIRECTORY
 #=================================================
-ynh_script_progression --message="Create yunohost.multimedia directory" --weight=8
+ynh_script_progression --message="Creating yunohost.multimedia directory..." --weight=8
 
 ynh_multimedia_build_main_dir
 
@@ -70,12 +70,12 @@ ynh_multimedia_build_main_dir
 #=================================================
 # INSTALL MINIDLNA
 #=================================================
-ynh_script_progression --message="Install minidlna" --weight=45
+ynh_script_progression --message="Installing minidlna..." --weight=45
 
 if [ ${version:0:1} = "B" ]
 then
 	# Install the backport version. (If you have issues with the standard version from the stable repository)
-	ynh_replace_string "__CODENAME__" "$codename" ../conf/minidlna.list
+	ynh_replace_string --match_string="__CODENAME__" --replace_string="$codename" --target_file=../conf/minidlna.list
 	cp -a ../conf/minidlna.list /etc/apt/sources.list.d/
 	ynh_apt update
 	ynh_package_install -t $codename-backports minidlna
@@ -84,17 +84,18 @@ else
 	ynh_apt update
 	ynh_package_install minidlna
 fi
-ynh_app_setting_set $app version ${version:0:1}
+ynh_app_setting_set --app=$app --key=version --value=${version:0:1}
 
 #=================================================
 # INCREASE INOTIFY'S LIMITS
 #=================================================
-ynh_script_progression --message="Increase inotify's limits"
+ynh_script_progression --message="Increasing inotify's limits..."
 
 # Increase the maximum number of files inotify can monitor.
 cp -a ../conf/90-inotify_minidlna.conf /etc/sysctl.d/
 # Then, reload the kernel configuration.
-if ! IS_PACKAGE_CHECK; then
+if ! IS_PACKAGE_CHECK   # LXC doesn't allow sysctl to play with kernel options.
+then
 	sysctl -p /etc/sysctl.d/90-inotify_minidlna.conf
 fi
 
@@ -107,25 +108,25 @@ yunohost service add minidlna --log "/var/log/minidlna.log"
 #=================================================
 # CONFIGURE MINIDLNA
 #=================================================
-ynh_script_progression --message="Configure MiniDLNA" --weight=2
+ynh_script_progression --message="Configuring MiniDLNA..." --weight=2
 
-ynh_replace_string "^#*media_dir=.*" "media_dir=/home/yunohost.multimedia/share" /etc/minidlna.conf
-ynh_replace_string "^#*port=.*" "port=$port" /etc/minidlna.conf
+ynh_replace_string --match_string="^#*media_dir=.*" --replace_string="media_dir=/home/yunohost.multimedia/share" --target_file=/etc/minidlna.conf
+ynh_replace_string --match_string="^#*port=.*" --replace_string="port=$port" --target_file=/etc/minidlna.conf
 friendly_name="Yunohost DLNA"
-ynh_app_setting_set $app friendly_name "$friendly_name"
-ynh_replace_string "^#*friendly_name=.*" "friendly_name=$friendly_name" /etc/minidlna.conf
+ynh_app_setting_set --app=$app --key=friendly_name --value="$friendly_name"
+ynh_replace_string --match_string="^#*friendly_name=.*" --replace_string="friendly_name=$friendly_name" --target_file=/etc/minidlna.conf
 root_container="B"
-ynh_replace_string "^#*root_container=.*" "root_container=$root_container" /etc/minidlna.conf
-ynh_app_setting_set $app root_container "$root_container"
-ynh_replace_string "^#wide_links=.*" "wide_links=yes" /etc/minidlna.conf
+ynh_replace_string --match_string="^#*root_container=.*" --replace_string="root_container=$root_container" --target_file=/etc/minidlna.conf
+ynh_app_setting_set --app=$app --key=root_container --value="$root_container"
+ynh_replace_string --match_string="^#wide_links=.*" --replace_string="wide_links=yes" --target_file=/etc/minidlna.conf
 
 # Calculate and store the config file checksum into the app settings
-ynh_store_file_checksum "/etc/minidlna.conf"
+ynh_store_file_checksum --file="/etc/minidlna.conf"
 
 #=================================================
 # RESTART MINIDLNA
 #=================================================
-ynh_script_progression --message="Restart MiniDLNA" --weight=4
+ynh_script_progression --message="Restarting MiniDLNA..." --weight=4
 
 ynh_systemd_action --action=restart --service_name=minidlna
 
@@ -147,10 +148,10 @@ You can also find some specific actions for this app by using the experimental _
 
 If you're facing an issue or want to improve this app, please open a new issue in this __URL_TAG1__project__URL_TAG2__https://github.com/YunoHost-Apps/minidlna_ynh__URL_TAG3__." > mail_to_send
 
-ynh_send_readme_to_admin --app_message="mail_to_send" --recipients="root" --type="install"
+ynh_send_readme_to_admin --app_message="mail_to_send" --recipients="root" --type=install
 
 #=================================================
 # END OF SCRIPT
 #=================================================
 
-ynh_script_progression --message="Installation completed" --last
+ynh_script_progression --message="Installation of $app completed" --last

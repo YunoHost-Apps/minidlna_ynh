@@ -23,7 +23,7 @@ source /usr/share/yunohost/helpers
 
 if [ ! -e /etc/apt/sources.list.d/minidlna.list ]
 then
-	ynh_die "You are already using the version from the stable repository." 0
+	ynh_die --message="You are already using the version from the stable repository." --ret_code=0
 fi
 
 #=================================================
@@ -31,11 +31,11 @@ fi
 #=================================================
 # RE-INSTALL MINIDLNA FROM STABLE
 #=================================================
-ynh_script_progression --message="Re-install minidlna from stable" --weight=9
+ynh_script_progression --message="Re-installing minidlna from stable..." --weight=9
 
 # Remove the current version of minidlna
 ynh_package_remove minidlna
-ynh_secure_remove "/etc/apt/sources.list.d/minidlna.list"
+ynh_secure_remove --file="/etc/apt/sources.list.d/minidlna.list"
 
 ynh_apt update
 ynh_package_install minidlna

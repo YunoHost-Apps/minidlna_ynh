@@ -7,9 +7,9 @@ Minidlna ne dispose pas d'une interface graphique, mais ne nécessite pas de con
 
 ### Quels fichiers multimédias sont partagés?
 Minidlna partage le dossier /home/yunohost.multimedia/share, qui est commun à chaque utilisateur dans le dossier /home/$USER/Multimedia/Share.
-[Plus d'informations sur les dossiers multimedia ici.](https://github.com/maniackcrudelis/yunohost.multimedia)
+[Plus d'informations sur les dossiers multimedia ici.](https://github.com/YunoHost-Apps/yunohost.multimedia)
 
-Si [transmission](https://github.com/Kloadut/transmission_ynh) est installé, les médias téléchargés seront disponible en dlna.
+Si [transmission](https://github.com/YunoHost-Apps/transmission_ynh) est installé, les médias téléchargés seront disponible en dlna.
 
 ### Comment consulter et lire les fichiers multimédias partagés par minidlna?
 Pour voir et lire les fichiers multimédias, il suffit de disposer d'un client compatible DLNA/UPNP.

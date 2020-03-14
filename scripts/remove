@@ -12,11 +12,11 @@ source /usr/share/yunohost/helpers
 #=================================================
 # LOAD SETTINGS
 #=================================================
-ynh_script_progression --message="Load settings" --weight=2
+ynh_script_progression --message="Loading installation settings..." --weight=2
 
 app=$YNH_APP_INSTANCE_NAME
 
-port=$(ynh_app_setting_get $app port)
+port=$(ynh_app_setting_get --app=$app --key=port)
 
 #=================================================
 # STANDARD REMOVE
@@ -27,14 +27,14 @@ port=$(ynh_app_setting_get $app port)
 # Check if the service is declared in YunoHost
 if ynh_exec_fully_quiet yunohost service status minidlna
 then
-	ynh_print_info "Remove minidlna service" >&2
+	ynh_script_progression --message="Removing $app service..."
 	yunohost service remove minidlna
 fi
 
 #=================================================
 # CLOSE PORTS
 #=================================================
-ynh_script_progression --message="Close ports" --weight=15
+ynh_script_progression --message="Closing ports $port and 1900..." --weight=15
 
 ynh_exec_fully_quiet yunohost firewall disallow TCP $port
 ynh_exec_fully_quiet yunohost firewall disallow UDP 1900
@@ -44,21 +44,21 @@ ynh_exec_fully_quiet yunohost firewall disallow UDP 1900
 #=================================================
 # REMOVE MINIDNLA
 #=================================================
-ynh_script_progression --message="Remove MiniDLNA" --weight=6
+ynh_script_progression --message="Removing MiniDLNA..." --weight=6
 
 ynh_apt purge minidlna
-ynh_secure_remove "/etc/apt/sources.list.d/minidlna.list"
+ynh_secure_remove --file="/etc/apt/sources.list.d/minidlna.list"
 
 #=================================================
 # REMOVE INOTIFY'S CONFIG
 #=================================================
-ynh_script_progression --message="Remove inotify's config"
+ynh_script_progression --message="Removing inotify's config..."
 
 if [ -e "/etc/sysctl.d/90-inotify_minidlna.conf" ]; then
-	ynh_print_info "Delete kernel config" >&2
-	ynh_secure_remove "/etc/sysctl.d/90-inotify_minidlna.conf"
+	ynh_secure_remove --file="/etc/sysctl.d/90-inotify_minidlna.conf"
 	# Reload the kernel configuration.
-	if ! IS_PACKAGE_CHECK; then
+	if ! IS_PACKAGE_CHECK   # LXC doesn't allow sysctl to play with kernel options.
+	then
 		sysctl -p /etc/sysctl.d/90-inotify_minidlna.conf
 	fi
 fi
@@ -67,4 +67,4 @@ fi
 # END OF SCRIPT
 #=================================================
 
-ynh_script_progression --message="Deletion completed" --last
+ynh_script_progression --message="Removal of $app completed" --last

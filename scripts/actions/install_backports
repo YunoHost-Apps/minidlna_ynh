@@ -12,7 +12,6 @@ source /usr/share/yunohost/helpers
 #=================================================
 # RETRIEVE ARGUMENTS
 #=================================================
-ynh_script_progression --message="Retrieve arguments from the manifest"
 
 app=${YNH_APP_INSTANCE_NAME:-$YNH_APP_ID}
 
@@ -26,7 +25,7 @@ app=${YNH_APP_INSTANCE_NAME:-$YNH_APP_ID}
 
 if [ -e /etc/apt/sources.list.d/minidlna.list ]
 then
-	ynh_die "You are already using the version from backports repository." 0
+	ynh_die --message="You are already using the version from backports repository." --ret_code=0
 fi
 
 #=================================================
@@ -34,16 +33,16 @@ fi
 #=================================================
 # RE-INSTALL MINIDLNA FROM BACKPORTS
 #=================================================
-ynh_script_progression --message="Re-install minidlna from backports" --weight=9
+ynh_script_progression --message="Re-installing minidlna from backports..." --weight=9
 
 # Remove the current version of minidlna
 ynh_package_remove minidlna
 
 # Then install the version from backports
 codename=$(ynh_debian_release)
-test -z "$codename" && (ynh_die "codename empty")
+test -z "$codename" && (ynh_die --message="codename empty")
 
-ynh_replace_string "__CODENAME__" "$codename" /etc/yunohost/apps/$app/conf/minidlna.list
+ynh_replace_string --match_string="__CODENAME__" --replace_string="$codename" --target_file=/etc/yunohost/apps/$app/conf/minidlna.list
 cp -a /etc/yunohost/apps/$app/conf/minidlna.list /etc/apt/sources.list.d/
 ynh_apt update
 ynh_package_install -t $codename-backports minidlna

@@ -6,10 +6,10 @@ It allows to easily share multimedia files with any compatible devices present o
 Minidlna does not have a graphical interface, but does not require any special configuration.
 
 ### What multimedia files are shared?
-Minidlna sharing the folder /home/yunohost.multimedia/share, which is common to each user in /home/$USER/Multimedia/Share.
-[More information about multimedia files here.](Https://github.com/maniackcrudelis/yunohost.multimedia)
+Minidlna is sharing the folder /home/yunohost.multimedia/share, which is common to each user in /home/$USER/Multimedia/Share.
+[More information about multimedia files here.](https://github.com/YunoHost-Apps/yunohost.multimedia)
 
-If [transmission](https://github.com/Kloadut/transmission_ynh) is installed, the downloaded media will be available in dlna.
+If [transmission](https://github.com/YunoHost-Apps/transmission_ynh) is installed, the downloaded media will be available in dlna.
 
 ### How to view and play media files shared by minidlna?
 To view and play media files, all you need is a compatible client DLNA/UPNP.
@@ -17,7 +17,7 @@ To view and play media files, all you need is a compatible client DLNA/UPNP.
 The majority of set-top boxes provided by ISPs are DLNA compatible, simply look for sources of external media.
 This is also true for the latest generation game consoles connected to internet.
 
-Some TV and blu-ray player is also DLNA compatible.
+Some TV and blu-ray player are also DLNA compatible.
 
 In any case, it is generally sufficient to seek external sources, USB etc, to find the DLNA server, displayed under the name **Yunohost DLNA**.
 

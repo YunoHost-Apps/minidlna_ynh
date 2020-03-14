@@ -19,11 +19,11 @@ ynh_abort_if_errors
 #=================================================
 # LOAD SETTINGS
 #=================================================
-ynh_script_progression --message="Load settings"
+ynh_script_progression --message="Loading installation settings..."
 
 app=$YNH_APP_INSTANCE_NAME
 
-version=$(ynh_app_setting_get $app version)
+version=$(ynh_app_setting_get --app=$app --key=version)
 
 #=================================================
 # SPECIFIC BACKUP
@@ -33,26 +33,26 @@ version=$(ynh_app_setting_get $app version)
 
 if [ $version = "B" ]
 then
-	ynh_script_progression --message="Backup of the APT source"
-	ynh_backup "/etc/apt/sources.list.d/minidlna.list"
+	ynh_script_progression --message="Backing up the APT source file..."
+	ynh_backup --src_path="/etc/apt/sources.list.d/minidlna.list"
 fi
 
 #=================================================
 # BACKUP OF INOTIFY'S CONFIG
 #=================================================
-ynh_script_progression --message="Backup of inotify's config"
+ynh_script_progression --message="Backing up inotify's config..."
 
-ynh_backup "/etc/sysctl.d/90-inotify_minidlna.conf"
+ynh_backup --src_path="/etc/sysctl.d/90-inotify_minidlna.conf"
 
 #=================================================
 # BACKUP OF MINIDLNA CONFIGURATION
 #=================================================
-ynh_script_progression --message="Backup of minidlna configuration"
+ynh_script_progression --message="Backing up minidlna configuration..."
 
-ynh_backup "/etc/minidlna.conf"
+ynh_backup --src_path="/etc/minidlna.conf"
 
 #=================================================
 # END OF SCRIPT
 #=================================================
 
-ynh_script_progression --message="Backup completed" --last
+ynh_script_progression --message="Backup script completed for $app. (YunoHost will then actually copy those files to the archive)." --last

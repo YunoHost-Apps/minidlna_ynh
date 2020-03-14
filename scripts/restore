@@ -19,19 +19,19 @@ ynh_abort_if_errors
 #=================================================
 # LOAD SETTINGS
 #=================================================
-ynh_script_progression --message="Load settings"
+ynh_script_progression --message="Loading settings..."
 
 app=$YNH_APP_INSTANCE_NAME
 
-version=$(ynh_app_setting_get $app version)
-port=$(ynh_app_setting_get $app port)
+version=$(ynh_app_setting_get --app=$app --key=version)
+port=$(ynh_app_setting_get --app=$app --key=port)
 
 #=================================================
 # SPECIFIC RESTORE
 #=================================================
 # OPEN PORTS
 #=================================================
-ynh_script_progression --message="Open ports" --weight=15
+ynh_script_progression --message="Configuring firewall..." --weight=15
 
 ynh_exec_fully_quiet yunohost firewall allow --no-upnp TCP $port
 # Discovery Protocol SSDP for UPNP.
@@ -40,21 +40,21 @@ ynh_exec_fully_quiet yunohost firewall allow --no-upnp UDP 1900
 #=================================================
 # CREATE YUNOHOST.MULTIMEDIA DIRECTORY
 #=================================================
-ynh_script_progression --message="Create yunohost.multimedia directory" --weight=6
+ynh_script_progression --message="Creating yunohost.multimedia directory..." --weight=6
 
 ynh_multimedia_build_main_dir
 
 #=================================================
 # INSTALL MINIDLNA
 #=================================================
-ynh_script_progression --message="Install minidlna" --weight=45
+ynh_script_progression --message="Installing minidlna" --weight=45
 
 if [ ${version:0:1} = "B" ]
 then
 	# Install the backport version. (If you have issues with the standard version from the stable repository)
 	codename=$(ynh_debian_release)
-	ynh_restore_file "/etc/apt/sources.list.d/minidlna.list"
-	ynh_replace_string " [a-z]*-backports" " $codename-backports" /etc/apt/sources.list.d/minidlna.list
+	ynh_restore_file --origin_path="/etc/apt/sources.list.d/minidlna.list"
+	ynh_replace_string --match_string=" [a-z]*-backports" --replace_string=" $codename-backports" --target_file=/etc/apt/sources.list.d/minidlna.list
 	ynh_apt update
 	ynh_package_install -t $codename-backports minidlna
 else
@@ -66,21 +66,22 @@ fi
 #=================================================
 # RESTORE INOTIFY'S CONFIG
 #=================================================
-ynh_script_progression --message="Restore inotify's config"
+ynh_script_progression --message="Restoring inotify's config..."
 
-ynh_restore_file "/etc/sysctl.d/90-inotify_minidlna.conf"
-if ! IS_PACKAGE_CHECK; then
+ynh_restore_file --origin_path="/etc/sysctl.d/90-inotify_minidlna.conf"
+if ! IS_PACKAGE_CHECK   # LXC doesn't allow sysctl to play with kernel options.
+then
 	sysctl -p /etc/sysctl.d/90-inotify_minidlna.conf
 fi
 
 #=================================================
 # RESTORE MINIDLNA CONFIGURATION
 #=================================================
-ynh_script_progression --message="Restore MiniDLNA configuration" --weight=7
+ynh_script_progression --message="Restoring MiniDLNA configuration..." --weight=7
 
 # Delete the current config of minidlna, in order to replace it by the version from the backup
-ynh_secure_remove "/etc/minidlna.conf"
-ynh_restore_file "/etc/minidlna.conf"
+ynh_secure_remove --file="/etc/minidlna.conf"
+ynh_restore_file --origin_path="/etc/minidlna.conf"
 ynh_systemd_action --action=restart --service_name=minidlna
 
 #=================================================
@@ -107,10 +108,10 @@ You can also find some specific actions for this app by using the experimental _
 
 If you're facing an issue or want to improve this app, please open a new issue in this __URL_TAG1__project__URL_TAG2__https://github.com/YunoHost-Apps/minidlna_ynh__URL_TAG3__." > mail_to_send
 
-ynh_send_readme_to_admin --app_message="mail_to_send" --recipients="root" --type="restore"
+ynh_send_readme_to_admin --app_message="mail_to_send" --recipients="root" --type=restore
 
 #=================================================
 # END OF SCRIPT
 #=================================================
 
-ynh_script_progression --message="Restoration completed" --last
+ynh_script_progression --message="Restoration completed for $app" --last

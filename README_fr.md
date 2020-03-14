@@ -12,7 +12,7 @@ Si vous n'avez pas YunoHost, merci de regarder [ici](https://yunohost.org/#/inst
 
 MiniDLNA est un simple serveur multimédia, dont le but est d'être entièrement compatible avec les clients DLNA/UPnP-AV.
 
-**Version embarquée:** Versions des dépôts Debian. Actuellement 1.1.2 et 1.1.6
+**Version embarquée:** Versions des dépôts Debian. Actuellement 1.1.6 et 1.2.1
 
 ## Captures d'écran
 
@@ -39,9 +39,9 @@ Non applicable.
 
 #### Architectures supportées.
 
-* x86-64b - [![](https://ci-apps.yunohost.org/ci/logs/minidlna%20%28Community%29.svg)](https://ci-apps.yunohost.org/ci/apps/minidlna/)
-* ARMv8-A - [![](https://ci-apps-arm.yunohost.org/ci/logs/minidlna%20%28Community%29.svg)](https://ci-apps-arm.yunohost.org/ci/apps/minidlna/)
-* Jessie x86-64b - [![](https://ci-stretch.nohost.me/ci/logs/minidlna%20%28Community%29.svg)](https://ci-stretch.nohost.me/ci/apps/minidlna/)
+* x86-64b - [![](https://ci-apps.yunohost.org/ci/logs/minidlna%20%28Apps%29.svg)](https://ci-apps.yunohost.org/ci/apps/minidlna/)
+* ARMv8-A - [![](https://ci-apps-arm.yunohost.org/ci/logs/minidlna%20%28Apps%29.svg)](https://ci-apps-arm.yunohost.org/ci/apps/minidlna/)
+* Jessie x86-64b - [![](https://ci-stretch.nohost.me/ci/logs/minidlna%20%28Apps%29.svg)](https://ci-stretch.nohost.me/ci/apps/minidlna/)
 
 ## Limitations
 
