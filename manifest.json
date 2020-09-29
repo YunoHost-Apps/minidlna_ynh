@@ -10,9 +10,13 @@
 	"url": "http://minidlna.sourceforge.net/",
 	"license": "GPL-2.0",
 	"maintainer": {
+		"name": "None...",
+		"email": ""
+	},
+	"previous_maintainers": [{
 		"name": "Maniack Crudelis",
 		"email": "maniackc_dev@crudelis.fr"
-	},
+	}],
 	"requirements": {
 		"yunohost": ">= 3.5"
 	},
