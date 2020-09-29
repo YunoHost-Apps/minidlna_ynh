@@ -1,6 +1,6 @@
 # MiniDLNA pour YunoHost
 
-[![Niveau d'intégration](https://dash.yunohost.org/integration/minidlna.svg)](https://dash.yunohost.org/appci/app/minidlna)  
+[![Niveau d'intégration](https://dash.yunohost.org/integration/minidlna.svg)](https://dash.yunohost.org/appci/app/minidlna) ![](https://ci-apps.yunohost.org/ci/badges/minidlna.status.svg) ![](https://ci-apps.yunohost.org/ci/badges/minidlna.maintain.svg)  
 [![Installer MiniDLNA avec YunoHost](https://install-app.yunohost.org/install-with-yunohost.png)](https://install-app.yunohost.org/?app=minidlna)
 
 *[Read this readme in english.](./README.md)*
@@ -12,7 +12,7 @@ Si vous n'avez pas YunoHost, merci de regarder [ici](https://yunohost.org/#/inst
 
 MiniDLNA est un simple serveur multimédia, dont le but est d'être entièrement compatible avec les clients DLNA/UPnP-AV.
 
-**Version embarquée:** Versions des dépôts Debian. Actuellement 1.1.6 et 1.2.1
+**Version embarquée :** Versions des dépôts Debian. Actuellement 1.1.6 et 1.2.1
 
 ## Captures d'écran
 
@@ -22,16 +22,16 @@ Aucune démo pour cette application.
 
 ## Configuration
 
-Editez le fichier `/etc/minidlna.conf` pour ajuster la configuration de MiniDLNA.
+Éditez le fichier `/etc/minidlna.conf` pour ajuster la configuration de MiniDLNA.
 
 ## Documentation
 
- * Documentation YunoHost: https://yunohost.org/#/app_minidlna
+ * Documentation YunoHost : https://yunohost.org/#/app_minidlna
 
 ## Fonctionnalités spécifiques à YunoHost
 
 * Utilise les répertoires multimédia partagés.
-* Lié à transmission, nextcloud et toute autre application qui utilise les répertoires multimédia.
+* Lié à transmission, Nextcloud et toute autre application qui utilise les répertoires multimédia.
 
 #### Support multi-utilisateurs
 
@@ -39,9 +39,8 @@ Non applicable.
 
 #### Architectures supportées.
 
-* x86-64b - [![](https://ci-apps.yunohost.org/ci/logs/minidlna%20%28Apps%29.svg)](https://ci-apps.yunohost.org/ci/apps/minidlna/)
+* x86-64 - [![](https://ci-apps.yunohost.org/ci/logs/minidlna%20%28Apps%29.svg)](https://ci-apps.yunohost.org/ci/apps/minidlna/)
 * ARMv8-A - [![](https://ci-apps-arm.yunohost.org/ci/logs/minidlna%20%28Apps%29.svg)](https://ci-apps-arm.yunohost.org/ci/apps/minidlna/)
-* Jessie x86-64b - [![](https://ci-stretch.nohost.me/ci/logs/minidlna%20%28Apps%29.svg)](https://ci-stretch.nohost.me/ci/apps/minidlna/)
 
 ## Limitations
 
@@ -49,14 +48,13 @@ Non applicable.
 
 ## Liens
 
- * Reporter un bug: https://github.com/YunoHost-Apps/minidlna_ynh/issues
- * Site de MiniDLNA: http://minidlna.sourceforge.net/
- * Site de YunoHost: https://yunohost.org/
+ * Reporter un bug : https://github.com/YunoHost-Apps/minidlna_ynh/issues
+ * Site de MiniDLNA : http://minidlna.sourceforge.net/
+ * Site de YunoHost : https://yunohost.org/
 
 ---
 
-Informations à l'intention des développeurs
-----------------
+## Informations à l'intention des développeurs
 
 Merci de faire vos pull request sur la [branche testing](https://github.com/YunoHost-Apps/minidlna_ynh/tree/testing).
 

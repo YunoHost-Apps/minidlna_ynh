@@ -47,7 +47,7 @@ ynh_multimedia_build_main_dir
 #=================================================
 # INSTALL MINIDLNA
 #=================================================
-ynh_script_progression --message="Installing minidlna" --weight=45
+ynh_script_progression --message="Installing MiniDLNA" --weight=45
 
 if [ ${version:0:1} = "B" ]
 then
@@ -114,4 +114,4 @@ ynh_send_readme_to_admin --app_message="mail_to_send" --recipients="root" --type
 # END OF SCRIPT
 #=================================================
 
-ynh_script_progression --message="Restoration completed for $app" --last
+ynh_script_progression --message="Restoration completed for MiniDLNA" --last
