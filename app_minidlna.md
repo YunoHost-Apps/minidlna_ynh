@@ -12,6 +12,7 @@ MiniDLNA is sharing the folder `/home/yunohost.multimedia/share`, which is commo
 If [Transmission](https://github.com/YunoHost-Apps/transmission_ynh) is installed, the downloaded media will be available in DLNA.
 
 ### How to view and play media files shared by miniDLNA?
+
 To view and play media files, all you need is a compatible client DLNA/UPNP.
 
 The majority of set-top boxes provided by ISPs are DLNA compatible, simply look for sources of external media.
