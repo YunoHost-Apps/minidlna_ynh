@@ -41,7 +41,6 @@ Non applicable.
 
 * x86-64b - [![](https://ci-apps.yunohost.org/ci/logs/minidlna%20%28Apps%29.svg)](https://ci-apps.yunohost.org/ci/apps/minidlna/)
 * ARMv8-A - [![](https://ci-apps-arm.yunohost.org/ci/logs/minidlna%20%28Apps%29.svg)](https://ci-apps-arm.yunohost.org/ci/apps/minidlna/)
-* Jessie x86-64b - [![](https://ci-stretch.nohost.me/ci/logs/minidlna%20%28Apps%29.svg)](https://ci-stretch.nohost.me/ci/apps/minidlna/)
 
 ## Limitations
 
