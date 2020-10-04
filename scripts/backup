@@ -47,7 +47,7 @@ ynh_backup --src_path="/etc/sysctl.d/90-inotify_minidlna.conf"
 #=================================================
 # BACKUP OF MINIDLNA CONFIGURATION
 #=================================================
-ynh_script_progression --message="Backing up minidlna configuration..."
+ynh_script_progression --message="Backing up MiniDLNA configuration..."
 
 ynh_backup --src_path="/etc/minidlna.conf"
 
