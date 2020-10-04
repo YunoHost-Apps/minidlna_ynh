@@ -6,7 +6,7 @@ It allows to easily share multimedia files with any compatible devices present o
 Minidlna does not have a graphical interface, but does not require any special configuration.
 
 ### What multimedia files are shared?
-Minidlna is sharing the folder /home/yunohost.multimedia/share, which is common to each user in /home/$USER/Multimedia/Share.
+MiniDLNA is sharing the folder `/home/yunohost.multimedia/share`, which is common to each user in `/home/$USER/Multimedia/Share`.
 [More information about multimedia files here.](https://github.com/YunoHost-Apps/yunohost.multimedia)
 
 If [Transmission](https://github.com/YunoHost-Apps/transmission_ynh) is installed, the downloaded media will be available in DLNA.
