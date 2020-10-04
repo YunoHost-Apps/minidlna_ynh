@@ -47,7 +47,7 @@ ynh_multimedia_build_main_dir
 #=================================================
 # INSTALL MINIDLNA
 #=================================================
-ynh_script_progression --message="Installing minidlna" --weight=45
+ynh_script_progression --message="Installing MiniDLNA" --weight=45
 
 if [ ${version:0:1} = "B" ]
 then
