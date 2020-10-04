@@ -33,7 +33,7 @@ fi
 #=================================================
 # RE-INSTALL MINIDLNA FROM BACKPORTS
 #=================================================
-ynh_script_progression --message="Re-installing minidlna from backports..." --weight=9
+ynh_script_progression --message="Re-installing MiniDLNA from backports..." --weight=9
 
 # Remove the current version of minidlna
 ynh_package_remove minidlna
