@@ -19,7 +19,7 @@ This is also true for the latest generation game consoles connected to internet.
 
 Some TV and blu-ray player are also DLNA compatible.
 
-In any case, it is generally sufficient to seek external sources, USB etc, to find the DLNA server, displayed under the name **Yunohost DLNA**.
+In any case, it is generally sufficient to seek external sources, USB etc., to find the DLNA server, displayed under the name **YunoHost DLNA**.
 
 There are a multitude of DLNA client for all platforms, including the following [not exhaustive list](https://en.wikipedia.org/wiki/List_of_UPnP_AV_media_servers_and_clients#UPnP_AV_clients).
 In general, a DLNA client does not require any special configuration to access the media sharing.
