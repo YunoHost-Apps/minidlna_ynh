@@ -11,7 +11,7 @@ Minidlna partage le dossier /home/yunohost.multimedia/share, qui est commun à c
 
 Si [transmission](https://github.com/YunoHost-Apps/transmission_ynh) est installé, les médias téléchargés seront disponible en dlna.
 
-### Comment consulter et lire les fichiers multimédias partagés par minidlna?
+### Comment consulter et lire les fichiers multimédias partagés par MiniDLNA?
 Pour voir et lire les fichiers multimédias, il suffit de disposer d'un client compatible DLNA/UPNP.
 
 La majorité des décodeurs TV fourni par les FAI sont compatible DLNA, il suffit de chercher les sources de médias externe.
