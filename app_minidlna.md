@@ -1,6 +1,6 @@
-# Minidlna
+# MiniDLNA
 
-Minidlna is a lightweight [dlna](https://fr.wikipedia.org/wiki/Digital_Living_Network_Alliance) server.
+MiniDLNA is a lightweight [DLNA](https://fr.wikipedia.org/wiki/Digital_Living_Network_Alliance) server.
 It allows to easily share multimedia files with any compatible devices present on the LAN.
 
 MiniDLNA does not have a graphical interface, but does not require any special configuration.
@@ -11,13 +11,14 @@ MiniDLNA is sharing the folder `/home/yunohost.multimedia/share`, which is commo
 
 If [Transmission](https://github.com/YunoHost-Apps/transmission_ynh) is installed, the downloaded media will be available in DLNA.
 
-### How to view and play media files shared by MiniDLNA?
+### How to view and play media files shared by miniDLNA?
+
 To view and play media files, all you need is a compatible client DLNA/UPNP.
 
 The majority of set-top boxes provided by ISPs are DLNA compatible, simply look for sources of external media.
 This is also true for the latest generation game consoles connected to internet.
 
-Some TV and blu-ray player are also DLNA compatible.
+Some TV and Blu-ray player are also DLNA compatible.
 
 In any case, it is generally sufficient to seek external sources, USB etc., to find the DLNA server, displayed under the name **YunoHost DLNA**.
 

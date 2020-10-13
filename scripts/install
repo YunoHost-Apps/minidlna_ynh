@@ -37,7 +37,7 @@ ynh_app_setting_set --app=$app --key=admin_mail_html --value=1
 #=================================================
 # CHECK DEBIAN'S CODENAME
 #=================================================
-ynh_script_progression --message="Checking debian's codename..."
+ynh_script_progression --message="Checking Debian's codename..."
 
 codename=$(ynh_debian_release)
 test -z "$codename" && (ynh_die --message="codename empty")
@@ -154,4 +154,4 @@ ynh_send_readme_to_admin --app_message="mail_to_send" --recipients="root" --type
 # END OF SCRIPT
 #=================================================
 
-ynh_script_progression --message="Installation of $app completed" --last
+ynh_script_progression --message="Installation of MiniDLNA completed" --last

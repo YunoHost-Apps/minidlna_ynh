@@ -27,8 +27,8 @@
 			{
 				"name": "version",
 				"ask": {
-					"en": "Select the minidlna version to install",
-					"fr": "Choix de la version de minidlna à installer"
+					"en": "Select the MiniDLNA version to install",
+					"fr": "Choix de la version de MiniDLNA à installer"
 				},
 				"choices": ["A. Version of the Debian repositories - recommended", "B. Latest version available for Debian"],
 				"default": "A. Version of the Debian repositories - recommended"
