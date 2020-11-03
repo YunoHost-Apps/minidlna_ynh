@@ -39,7 +39,7 @@ ynh_script_progression --message="Re-installing MiniDLNA from backports..." --we
 ynh_package_remove minidlna
 
 # Then install the version from backports
-codename=$(ynh_debian_release)
+codename=$(ynh_get_debian_release)
 test -z "$codename" && (ynh_die --message="codename empty")
 
 ynh_replace_string --match_string="__CODENAME__" --replace_string="$codename" --target_file=/etc/yunohost/apps/$app/conf/minidlna.list

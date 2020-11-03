@@ -52,7 +52,7 @@ ynh_script_progression --message="Installing MiniDLNA" --weight=45
 if [ ${version:0:1} = "B" ]
 then
 	# Install the backport version. (If you have issues with the standard version from the stable repository)
-	codename=$(ynh_debian_release)
+	codename=$(ynh_get_debian_release)
 	ynh_restore_file --origin_path="/etc/apt/sources.list.d/minidlna.list"
 	ynh_replace_string --match_string=" [a-z]*-backports" --replace_string=" $codename-backports" --target_file=/etc/apt/sources.list.d/minidlna.list
 	ynh_apt update
