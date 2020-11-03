@@ -23,16 +23,6 @@
 	"multi_instance": false,
 	"services": [],
 	"arguments": {
-		"install" : [
-			{
-				"name": "version",
-				"ask": {
-					"en": "Select the MiniDLNA version to install",
-					"fr": "Choix de la version de MiniDLNA à installer"
-				},
-				"choices": ["A. Version of the Debian repositories - recommended", "B. Latest version available for Debian"],
-				"default": "A. Version of the Debian repositories - recommended"
-			}
-		]
+		"install" : []
 	}
 }

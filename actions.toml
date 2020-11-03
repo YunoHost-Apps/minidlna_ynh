@@ -1,11 +1,3 @@
-[install_standard]
-name = "Install the version from stable repository"
-command = "/bin/bash scripts/actions/install_standard"
-
-[install_backports]
-name = "Install the version from backports repository"
-command = "/bin/bash scripts/actions/install_backports"
-
 [reset_db]
 name = "Reinitialise the database"
 command = "/bin/bash scripts/actions/reset_db"

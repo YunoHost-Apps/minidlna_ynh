@@ -51,6 +51,12 @@ if [ -z "$friendly_name" ]; then
 	ynh_app_setting_set --app=$app --key=friendly_name --value=$friendly_name
 fi
 
+# If version exists, remove the backport source list, as it's no longer used.
+if [ -n "$version" ]; then
+	ynh_secure_remove --file="/etc/apt/sources.list.d/minidlna.list"
+	ynh_app_setting_delete --app=$app --key=version
+fi
+
 #=================================================
 # BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
 #=================================================
@@ -77,19 +83,7 @@ ynh_multimedia_build_main_dir
 #=================================================
 ynh_script_progression --message="Upgrading MiniDLNA..." --weight=3
 
-if [ $version = "B" ]
-then
-	# Install the backport version. (If you have issues with the standard version from the stable repository)
-	codename=$(ynh_get_debian_release)
-	ynh_replace_string --match_string="__CODENAME__" --replace_string="$codename" --target_file=../conf/minidlna.list
-	cp -a ../conf/minidlna.list /etc/apt/sources.list.d/
-	ynh_apt update
-	ynh_package_install -t $codename-backports minidlna
-else
-	# Install the standard version from debian repository
-	ynh_apt update
-	ynh_package_install minidlna
-fi
+ynh_add_app_dependencies --package=minidlna
 
 #=================================================
 # INCREASE INOTIFY'S LIMITS

@@ -20,16 +20,12 @@ ynh_abort_if_errors
 # RETRIEVE ARGUMENTS FROM THE MANIFEST
 #=================================================
 
-version="$YNH_APP_ARG_VERSION"
-
 app=$YNH_APP_INSTANCE_NAME
 
 #=================================================
 # STORE SETTINGS FROM MANIFEST
 #=================================================
 ynh_script_progression --message="Storing installation settings..." --weight=2
-
-ynh_app_setting_set --app=$app --key=version --value=${version:0:1}
 
 ynh_app_setting_set --app=$app --key=overwrite_settings --value=1
 ynh_app_setting_set --app=$app --key=admin_mail_html --value=1
@@ -72,19 +68,7 @@ ynh_multimedia_build_main_dir
 #=================================================
 ynh_script_progression --message="Installing MiniDLNA..." --weight=45
 
-if [ ${version:0:1} = "B" ]
-then
-	# Install the backport version. (If you have issues with the standard version from the stable repository)
-	ynh_replace_string --match_string="__CODENAME__" --replace_string="$codename" --target_file=../conf/minidlna.list
-	cp -a ../conf/minidlna.list /etc/apt/sources.list.d/
-	ynh_apt update
-	ynh_package_install -t $codename-backports minidlna
-else
-	# Install the standard version from debian repository
-	ynh_apt update
-	ynh_package_install minidlna
-fi
-ynh_app_setting_set --app=$app --key=version --value=${version:0:1}
+ynh_add_app_dependencies --package=minidlna
 
 #=================================================
 # INCREASE INOTIFY'S LIMITS

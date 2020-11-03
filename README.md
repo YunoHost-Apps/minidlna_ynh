@@ -12,7 +12,7 @@ If you don't have YunoHost, please see [here](https://yunohost.org/#/install) to
 
 MiniDLNA is a simple media server software, with the aim of being fully compliant with DLNA/UPnP-AV clients.
 
-**Shipped version:** Debian repositories versions. Currently 1.1.6 and 1.2.1
+**Shipped version:** Debian repositories versions. Currently 1.2.1
 
 ## Screenshots
 
