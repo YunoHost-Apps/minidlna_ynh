@@ -48,7 +48,7 @@ ynh_multimedia_build_main_dir
 #=================================================
 ynh_script_progression --message="Installing MiniDLNA" --weight=45
 
-ynh_add_app_dependencies --package=minidlna
+ynh_install_app_dependencies minidlna
 
 #=================================================
 # RESTORE INOTIFY'S CONFIG
