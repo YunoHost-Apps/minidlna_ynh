@@ -1,0 +1,39 @@
+version = "0.1"
+name = "Minidlna configuration panel"
+
+
+[main]
+name = "Minidlna configuration"
+
+    [main.minidlna_configuration]
+    name = "Minidlna configuration"
+
+        [main.minidlna_configuration.root_container]
+        ask = "Type of directory shown to the clients ?"
+        choices = ["Standard container", "Browse Directory", "Music", "Pictures", "Video"]
+        default = "Browse Directory"
+
+        [main.minidlna_configuration.friendly_name]
+        ask = "Name of DLNA server shown to clients ?"
+        type = "text"
+        default = "Yunohost DLNA"
+
+
+    [main.overwrite_files]
+    name = "Overwriting config files"
+
+        [main.overwrite_files.overwrite_settings]
+        ask = "Overwrite the config file minidlna.conf ?"
+        type = "boolean"
+        default = true
+        help = "If the file is overwritten, a backup will be created."
+
+
+    [main.global_config]
+    name = "Global configuration"
+
+        [main.global_config.email_type]
+        ask = "Send HTML email to admin ?"
+        type = "boolean"
+        default = true
+        help = "Allow app scripts to send HTML mails instead of plain text."

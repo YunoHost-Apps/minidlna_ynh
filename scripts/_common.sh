@@ -1,6 +1,10 @@
 #!/bin/bash
 
 #=================================================
+# PERSONAL HELPERS
+#=================================================
+
+#=================================================
 # BACKUP
 #=================================================
 
@@ -27,25 +31,12 @@ CHECK_SIZE () {	# Vérifie avant chaque backup que l'espace est suffisant
 #=================================================
 
 IS_PACKAGE_CHECK () {
-	return $(env | grep -c container=lxc)
-}
-
-#=================================================
-# BOOLEAN CONVERTER
-#=================================================
-
-bool_to_01 () {
-	local var="$1"
-	[ "$var" = "true" ] && var=1
-	[ "$var" = "false" ] && var=0
-	echo "$var"
-}
-
-bool_to_true_false () {
-	local var="$1"
-	[ "$var" = "1" ] && var=true
-	[ "$var" = "0" ] && var=false
-	echo "$var"
+	if [ ${PACKAGE_CHECK_EXEC:-0} -eq 1 ]
+	then
+		return 0
+	else
+		return 1
+	fi
 }
 
 #=================================================
@@ -127,359 +118,6 @@ ynh_multimedia_addaccess () {
 
 	groupadd -f multimedia
 	usermod -a -G multimedia $user_name
-}
-
-#=================================================
-
-# Create a dedicated fail2ban config (jail and filter conf files)
-#
-# usage: ynh_add_fail2ban_config log_file filter [max_retry [ports]]
-# | arg: -l, --logpath= - Log file to be checked by fail2ban
-# | arg: -r, --failregex= - Failregex to be looked for by fail2ban
-# | arg: -m, --max_retry= - Maximum number of retries allowed before banning IP address - default: 3
-# | arg: -p, --ports= - Ports blocked for a banned IP address - default: http,https
-ynh_add_fail2ban_config () {
-	# Declare an array to define the options of this helper.
-	declare -Ar args_array=( [l]=logpath= [r]=failregex= [m]=max_retry= [p]=ports= )
-	local logpath
-	local failregex
-	local max_retry
-	local ports
-	# Manage arguments with getopts
-	ynh_handle_getopts_args "$@"
-	max_retry=${max_retry:-3}
-	ports=${ports:-http,https}
-
-	test -n "$logpath" || ynh_die "ynh_add_fail2ban_config expects a logfile path as first argument and received nothing."
-	test -n "$failregex" || ynh_die "ynh_add_fail2ban_config expects a failure regex as second argument and received nothing."
-
-	finalfail2banjailconf="/etc/fail2ban/jail.d/$app.conf"
-	finalfail2banfilterconf="/etc/fail2ban/filter.d/$app.conf"
-	ynh_backup_if_checksum_is_different "$finalfail2banjailconf" 1
-	ynh_backup_if_checksum_is_different "$finalfail2banfilterconf" 1
-
-	tee $finalfail2banjailconf <<EOF
-[$app]
-enabled = true
-port = $ports
-filter = $app
-logpath = $logpath
-maxretry = $max_retry
-EOF
-
-  tee $finalfail2banfilterconf <<EOF
-[INCLUDES]
-before = common.conf
-[Definition]
-failregex = $failregex
-ignoreregex =
-EOF
-
-	ynh_store_file_checksum "$finalfail2banjailconf"
-	ynh_store_file_checksum "$finalfail2banfilterconf"
-
-	if [ "$(lsb_release --codename --short)" != "jessie" ]; then
-		systemctl reload fail2ban
-	else
-		systemctl restart fail2ban
-	fi
-	local fail2ban_error="$(journalctl -u fail2ban | tail -n50 | grep "WARNING.*$app.*")"
-	if [ -n "$fail2ban_error" ]
-	then
-		echo "[ERR] Fail2ban failed to load the jail for $app" >&2
-		echo "WARNING${fail2ban_error#*WARNING}" >&2
-	fi
-}
-
-# Remove the dedicated fail2ban config (jail and filter conf files)
-#
-# usage: ynh_remove_fail2ban_config
-ynh_remove_fail2ban_config () {
-	ynh_secure_remove "/etc/fail2ban/jail.d/$app.conf"
-	ynh_secure_remove "/etc/fail2ban/filter.d/$app.conf"
-	if [ "$(lsb_release --codename --short)" != "jessie" ]; then
-		systemctl reload fail2ban
-	else
-		systemctl restart fail2ban
-	fi
-}
-
-#=================================================
-
-# Read the value of a key in a ynh manifest file
-#
-# usage: ynh_read_manifest manifest key
-# | arg: -m, --manifest= - Path of the manifest to read
-# | arg: -k, --key= - Name of the key to find
-ynh_read_manifest () {
-	# Declare an array to define the options of this helper.
-	declare -Ar args_array=( [m]=manifest= [k]=manifest_key= )
-	local manifest
-	local manifest_key
-	# Manage arguments with getopts
-	ynh_handle_getopts_args "$@"
-
-	python3 -c "import sys, json;print(json.load(open('$manifest', encoding='utf-8'))['$manifest_key'])"
-}
-
-# Read the upstream version from the manifest
-# The version number in the manifest is defined by <upstreamversion>~ynh<packageversion>
-# For example : 4.3-2~ynh3
-# This include the number before ~ynh
-# In the last example it return 4.3-2
-#
-# usage: ynh_app_upstream_version [-m manifest]
-# | arg: -m, --manifest= - Path of the manifest to read
-ynh_app_upstream_version () {
-	declare -Ar args_array=( [m]=manifest= )
-	local manifest
-	# Manage arguments with getopts
-	ynh_handle_getopts_args "$@"
-
-	manifest="${manifest:-../manifest.json}"
-	if [ ! -e "$manifest" ]; then
-		manifest="../settings/manifest.json"	# Into the restore script, the manifest is not at the same place
-	fi
-	version_key=$(ynh_read_manifest --manifest="$manifest" --manifest_key="version")
-	echo "${version_key/~ynh*/}"
-}
-
-# Read package version from the manifest
-# The version number in the manifest is defined by <upstreamversion>~ynh<packageversion>
-# For example : 4.3-2~ynh3
-# This include the number after ~ynh
-# In the last example it return 3
-#
-# usage: ynh_app_package_version [-m manifest]
-# | arg: -m, --manifest= - Path of the manifest to read
-ynh_app_package_version () {
-	declare -Ar args_array=( [m]=manifest= )
-	local manifest
-	# Manage arguments with getopts
-	ynh_handle_getopts_args "$@"
-
-	manifest="${manifest:-../manifest.json}"
-	if [ ! -e "$manifest" ]; then
-		manifest="../settings/manifest.json"	# Into the restore script, the manifest is not at the same place
-	fi
-	version_key=$(ynh_read_manifest --manifest="$manifest" --manifest_key="version")
-	echo "${version_key/*~ynh/}"
-}
-
-# Checks the app version to upgrade with the existing app version and returns:
-# - UPGRADE_APP if the upstream app version has changed
-# - UPGRADE_PACKAGE if only the YunoHost package has changed
-#
-## It stops the current script without error if the package is up-to-date
-#
-# This helper should be used to avoid an upgrade of an app, or the upstream part
-# of it, when it's not needed
-#
-# To force an upgrade, even if the package is up to date,
-# you have to set the variable YNH_FORCE_UPGRADE before.
-# example: sudo YNH_FORCE_UPGRADE=1 yunohost app upgrade MyApp
-#
-# usage: ynh_check_app_version_changed
-ynh_check_app_version_changed () {
-	local force_upgrade=${YNH_FORCE_UPGRADE:-0}
-	local package_check=${PACKAGE_CHECK_EXEC:-0}
-
-	# By default, upstream app version has changed
-	local return_value="UPGRADE_APP"
-
-	local current_version=$(ynh_read_manifest --manifest="/etc/yunohost/apps/$YNH_APP_INSTANCE_NAME/manifest.json" --manifest_key="version" || echo 1.0)
-	local current_upstream_version="$(ynh_app_upstream_version --manifest="/etc/yunohost/apps/$YNH_APP_INSTANCE_NAME/manifest.json")"
-	local update_version=$(ynh_read_manifest --manifest="../manifest.json" --manifest_key="version" || echo 1.0)
-	local update_upstream_version="$(ynh_app_upstream_version)"
-
-	if [ "$current_version" == "$update_version" ] ; then
-		# Complete versions are the same
-		if [ "$force_upgrade" != "0" ]
-		then
-			echo "Upgrade forced by YNH_FORCE_UPGRADE." >&2
-			unset YNH_FORCE_UPGRADE
-		elif [ "$package_check" != "0" ]
-		then
-			echo "Upgrade forced for package check." >&2
-		else
-			ynh_die "Up-to-date, nothing to do" 0
-		fi
-	elif [ "$current_upstream_version" == "$update_upstream_version" ] ; then
-		# Upstream versions are the same, only YunoHost package versions differ
-		return_value="UPGRADE_PACKAGE"
-	fi
-	echo $return_value
-}
-
-#=================================================
-
-# Start (or other actions) a service,  print a log in case of failure and optionnaly wait until the service is completely started
-#
-# usage: ynh_systemd_action [-n service_name] [-a action] [ [-l "line to match"] [-p log_path] [-t timeout] [-e length] ]
-# | arg: -n, --service_name= - Name of the service to reload. Default : $app
-# | arg: -a, --action=       - Action to perform with systemctl. Default: start
-# | arg: -l, --line_match=   - Line to match - The line to find in the log to attest the service have finished to boot.
-#                              If not defined it don't wait until the service is completely started.
-# | arg: -p, --log_path=     - Log file - Path to the log file. Default : /var/log/$app/$app.log
-# | arg: -t, --timeout=      - Timeout - The maximum time to wait before ending the watching. Default : 300 seconds.
-# | arg: -e, --length=       - Length of the error log : Default : 20
-ynh_systemd_action() {
-	# Declare an array to define the options of this helper.
-	declare -Ar args_array=( [n]=service_name= [a]=action= [l]=line_match= [p]=log_path= [t]=timeout= [e]=length= )
-	local service_name
-	local action
-	local line_match
-	local length
-	local log_path
-	local timeout
-
-	# Manage arguments with getopts
-	ynh_handle_getopts_args "$@"
-
-	local service_name="${service_name:-$app}"
-	local action=${action:-start}
-	local log_path="${log_path:-/var/log/$service_name/$service_name.log}"
-	local length=${length:-20}
-	local timeout=${timeout:-300}
-
-	# Start to read the log
-	if [[ -n "${line_match:-}" ]]
-	then
-		local templog="$(mktemp)"
-	# Following the starting of the app in its log
-	if [ "$log_path" == "systemd" ] ; then
-		# Read the systemd journal
-		journalctl -u $service_name -f --since=-45 > "$templog" &
-	else
-		# Read the specified log file
-		tail -F -n0 "$log_path" > "$templog" &
-	fi
-		# Get the PID of the tail command
-		local pid_tail=$!
-	fi
-
-	echo "${action^} the service $service_name" >&2
-	systemctl $action $service_name \
-		|| ( journalctl --lines=$length -u $service_name >&2 \
-		; test -n "$log_path" && echo "--" && tail --lines=$length "$log_path" >&2 \
-		; false )
-
-	# Start the timeout and try to find line_match
-	if [[ -n "${line_match:-}" ]]
-	then
-		local i=0
-		for i in $(seq 1 $timeout)
-		do
-			# Read the log until the sentence is found, that means the app finished to start. Or run until the timeout
-			if grep --quiet "$line_match" "$templog"
-			then
-				echo "The service $service_name has correctly started." >&2
-				break
-			fi
-			echo -n "." >&2
-			sleep 1
-		done
-		if [ $i -eq $timeout ]
-		then
-			echo "The service $service_name didn't fully started before the timeout." >&2
-			echo "Please find here an extract of the end of the log of the service $service_name:"
-			journalctl --lines=$length -u $service_name >&2
-			test -n "$log_path" && echo "--" && tail --lines=$length "$log_path" >&2
-		fi
-
-		echo ""
-		ynh_clean_check_starting
-	fi
-}
-
-# Clean temporary process and file used by ynh_check_starting
-# (usually used in ynh_clean_setup scripts)
-#
-# usage: ynh_clean_check_starting
-ynh_clean_check_starting () {
-	# Stop the execution of tail.
-	kill -s 15 $pid_tail 2>&1
-	ynh_secure_remove "$templog" 2>&1
-}
-
-#=================================================
-
-# Print a message as INFO and show progression during an app script
-#
-# usage: ynh_script_progression --message=message [--weight=weight] [--time]
-# | arg: -m, --message= - The text to print
-# | arg: -w, --weight=  - The weight for this progression. This value is 1 by default. Use a bigger value for a longer part of the script.
-# | arg: -t, --time=    - Print the execution time since the last call to this helper. Especially usefull to define weights.
-# | arg: -l, --last=    - Use for the last call of the helper, to fill te progression bar.
-increment_progression=0
-previous_weight=0
-# Define base_time when the file is sourced
-base_time=$(date +%s)
-ynh_script_progression () {
-	# Declare an array to define the options of this helper.
-	declare -Ar args_array=( [m]=message= [w]=weight= [t]=time [l]=last )
-	local message
-	local weight
-	local time
-	local last
-	# Manage arguments with getopts
-	ynh_handle_getopts_args "$@"
-	weight=${weight:-1}
-	time=${time:-0}
-	last=${last:-0}
-
-	# Get execution time since the last $base_time
-	local exec_time=$(( $(date +%s) - $base_time ))
-	base_time=$(date +%s)
-
-	# Get the number of occurrences of 'ynh_script_progression' in the script. Except those are commented.
-	local helper_calls="$(grep --count "^[^#]*ynh_script_progression" $0)"
-	# Get the number of call with a weight value
-	local weight_calls=$(grep --perl-regexp --count "^[^#]*ynh_script_progression.*(--weight|-w )" $0)
-
-	# Get the weight of each occurrences of 'ynh_script_progression' in the script using --weight
-	local weight_valuesA="$(grep --perl-regexp "^[^#]*ynh_script_progression.*--weight" $0 | sed 's/.*--weight[= ]\([[:digit:]].*\)/\1/g')"
-	# Get the weight of each occurrences of 'ynh_script_progression' in the script using -w
-	local weight_valuesB="$(grep --perl-regexp "^[^#]*ynh_script_progression.*-w " $0 | sed 's/.*-w[= ]\([[:digit:]].*\)/\1/g')"
-	# Each value will be on a different line.
-	# Remove each 'end of line' and replace it by a '+' to sum the values.
-	local weight_values=$(( $(echo "$weight_valuesA" | tr '\n' '+') + $(echo "$weight_valuesB" | tr '\n' '+') 0 ))
-
-	# max_progression is a total number of calls to this helper.
-	#    Less the number of calls with a weight value.
-	#    Plus the total of weight values
-	local max_progression=$(( $helper_calls - $weight_calls + $weight_values ))
-
-	# Increment each execution of ynh_script_progression in this script by the weight of the previous call.
-	increment_progression=$(( $increment_progression + $previous_weight ))
-	# Store the weight of the current call in $previous_weight for next call
-	previous_weight=$weight
-
-	# Set the scale of the progression bar
-	local scale=20
-	# progress_string(1,2) should have the size of the scale.
-	local progress_string1="####################"
-	local progress_string0="...................."
-
-	# Reduce $increment_progression to the size of the scale
-	if [ $last -eq 0 ]
-	then
-		local effective_progression=$(( $increment_progression * $scale / $max_progression ))
-	# If last is specified, fill immediately the progression_bar
-	else
-		local effective_progression=$scale
-	fi
-
-	# Build $progression_bar from progress_string(1,2) according to $effective_progression
-	local progression_bar="${progress_string1:0:$effective_progression}${progress_string0:0:$(( $scale - $effective_progression ))}"
-
-	local print_exec_time=""
-	if [ $time -eq 1 ]
-	then
-		print_exec_time=" [$(date +%Hh%Mm,%Ss --date="0 + $exec_time sec")]"
-	fi
-
-	ynh_print_info "[$progression_bar] > ${message}${print_exec_time}"
 }
 
 #=================================================
@@ -627,231 +265,153 @@ __PRE_TAG1__$(yunohost tools diagnosis | grep -B 100 "services:" | sed '/service
 
 #=================================================
 
-ynh_debian_release () {
-	lsb_release --codename --short
-}
-
-is_stretch () {
-	if [ "$(ynh_debian_release)" == "stretch" ]
-	then
-		return 0
-	else
-		return 1
-	fi
-}
-
-is_jessie () {
-	if [ "$(ynh_debian_release)" == "jessie" ]
-	then
-		return 0
-	else
-		return 1
-	fi
-}
-
-#=================================================
-
-ynh_maintenance_mode_ON () {
-	# Load value of $path_url and $domain from the config if their not set
-	if [ -z $path_url ]; then
-		path_url=$(ynh_app_setting_get $app path)
-	fi
-	if [ -z $domain ]; then
-		domain=$(ynh_app_setting_get $app domain)
-	fi
-
-	# Create an html to serve as maintenance notice
-	echo "<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="refresh" content="3">
-<title>Your app $app is currently under maintenance!</title>
-<style>
-	body {
-		width: 70em;
-		margin: 0 auto;
-	}
-</style>
-</head>
-<body>
-<h1>Your app $app is currently under maintenance!</h1>
-<p>This app has been put under maintenance by your administrator at $(date)</p>
-<p>Please wait until the maintenance operation is done. This page will be reloaded as soon as your app will be back.</p>
-
-</body>
-</html>" > "/var/www/html/maintenance.$app.html"
-
-	# Create a new nginx config file to redirect all access to the app to the maintenance notice instead.
-	echo "# All request to the app will be redirected to ${path_url}_maintenance and fall on the maintenance notice
-rewrite ^${path_url}/(.*)$ ${path_url}_maintenance/? redirect;
-# Use another location, to not be in conflict with the original config file
-location ${path_url}_maintenance/ {
-alias /var/www/html/ ;
-
-try_files maintenance.$app.html =503;
-
-# Include SSOWAT user panel.
-include conf.d/yunohost_panel.conf.inc;
-}" > "/etc/nginx/conf.d/$domain.d/maintenance.$app.conf"
-
-	# The current config file will redirect all requests to the root of the app.
-	# To keep the full path, we can use the following rewrite rule:
-	# 	rewrite ^${path_url}/(.*)$ ${path_url}_maintenance/\$1? redirect;
-	# The difference will be in the $1 at the end, which keep the following queries.
-	# But, if it works perfectly for a html request, there's an issue with any php files.
-	# This files are treated as simple files, and will be downloaded by the browser.
-	# Would be really be nice to be able to fix that issue. So that, when the page is reloaded after the maintenance, the user will be redirected to the real page he was.
-
-	systemctl reload nginx
-}
-
-ynh_maintenance_mode_OFF () {
-	# Load value of $path_url and $domain from the config if their not set
-	if [ -z $path_url ]; then
-		path_url=$(ynh_app_setting_get $app path)
-	fi
-	if [ -z $domain ]; then
-		domain=$(ynh_app_setting_get $app domain)
-	fi
-
-	# Rewrite the nginx config file to redirect from ${path_url}_maintenance to the real url of the app.
-	echo "rewrite ^${path_url}_maintenance/(.*)$ ${path_url}/\$1 redirect;" > "/etc/nginx/conf.d/$domain.d/maintenance.$app.conf"
-	systemctl reload nginx
-
-	# Sleep 4 seconds to let the browser reload the pages and redirect the user to the app.
-	sleep 4
-
-	# Then remove the temporary files used for the maintenance.
-	rm "/var/www/html/maintenance.$app.html"
-	rm "/etc/nginx/conf.d/$domain.d/maintenance.$app.conf"
-
-	systemctl reload nginx
-}
-
-#=================================================
-
-# Download and check integrity of a file from app.src_file
+# Create a changelog for an app after an upgrade from the file CHANGELOG.md.
 #
-# The file conf/app.src_file need to contains:
+# usage: ynh_app_changelog [--format=markdown/html/plain] [--output=changelog_file] --changelog=changelog_source]
+# | arg: -f --format= - Format in which the changelog will be printed
+#       markdown: Default format.
+#       html:     Turn urls into html format.
+#       plain:    Plain text changelog
+# | arg: -o --output= - Output file for the changelog file (Default ./changelog)
+# | arg: -c --changelog= - CHANGELOG.md source (Default ../CHANGELOG.md)
 #
-# FILE_URL=Address to download the file
-# FILE_SUM=Control sum
-# # (Optional) Program to check the integrity (sha256sum, md5sum...)
-# # default: sha256
-# FILE_SUM_PRG=sha256
-# # (Optionnal) Name of the local archive (offline setup support)
-# # default: Name of the downloaded file.
-# FILENAME=example.deb
-#
-# usage: ynh_download_file --dest_dir="/destination/directory" [--source_id=myfile]
-# | arg: -d, --dest_dir=  - Directory where to download the file
-# | arg: -s, --source_id= - Name of the source file 'app.src_file' if it isn't '$app'
-ynh_download_file () {
-	# Declare an array to define the options of this helper.
-	declare -Ar args_array=( [d]=dest_dir= [s]=source_id= )
-	local dest_dir
-	local source_id
-	# Manage arguments with getopts
-	ynh_handle_getopts_args "$@"
-
-	source_id=${source_id:-app} # If the argument is not given, source_id equals "$app"
-
-	# Load value from configuration file (see above for a small doc about this file
-	# format)
-	local src_file="$YNH_CWD/../conf/${source_id}.src_file"
-	# If the src_file doesn't exist, use the backup path instead, with a "settings" directory
-	if [ ! -e "$src_file" ]
-	then
-		src_file="$YNH_CWD/../settings/conf/${source_id}.src_file"
-	fi
-	local file_url=$(grep 'FILE_URL=' "$src_file" | cut -d= -f2-)
-	local file_sum=$(grep 'FILE_SUM=' "$src_file" | cut -d= -f2-)
-	local file_sumprg=$(grep 'FILE_SUM_PRG=' "$src_file" | cut -d= -f2-)
-	local filename=$(grep 'FILENAME=' "$src_file" | cut -d= -f2-)
-
-	# Default value
-	file_sumprg=${file_sumprg:-sha256sum}
-	if [ "$filename" = "" ] ; then
-		filename="$(basename "$file_url")"
-	fi
-	local local_src="/opt/yunohost-apps-src/${YNH_APP_ID}/${filename}"
-
-	if test -e "$local_src"
-	then    # Use the local source file if it is present
-		cp $local_src $filename
-	else    # If not, download the source
-		local out=`wget -nv -O $filename $file_url 2>&1` || ynh_print_err $out
-	fi
-
-	# Check the control sum
-	echo "${file_sum} ${filename}" | ${file_sumprg} -c --status \
-		|| ynh_die "Corrupt file"
-
-	# Create the destination directory, if it's not already.
-	mkdir -p "$dest_dir"
-
-	# Move the file to its destination
-	mv $filename $dest_dir
-}
-
-#=================================================
-
-# Create a changelog for an app after an upgrade.
-#
-# The changelog is printed into the file ./changelog for the time of the upgrade.
-#
-# In order to create a changelog, ynh_app_changelog will get info from /etc/yunohost/apps/$app/status.json
-# In order to find the current commit use by the app.
-# The remote repository, and the branch.
-# The changelog will be only the commits since the current revision.
-#
-# Because of the need of those info, ynh_app_changelog works only
-# with apps that have been installed from a list.
-#
-# usage: ynh_app_changelog
+# The changelog is printed into the file ./changelog and ./changelog_lite
 ynh_app_changelog () {
-	get_value_from_settings ()
-	{
-		local value="$1"
-		# Extract a value from the status.json file of an installed app.
+    # Declare an array to define the options of this helper.
+    local legacy_args=foc
+    declare -Ar args_array=( [f]=format= [o]=output= [c]=changelog= )
+    local format
+    local output
+    local changelog
+    # Manage arguments with getopts
+    ynh_handle_getopts_args "$@"
+    format=${format:-markdown}
+    output=${output:-changelog}
+    changelog=${changelog:-../CHANGELOG.md}
 
-		grep "$value\": \"" /etc/yunohost/apps/$app/status.json | sed "s/.*$value\": \"\([^\"]*\).*/\1/"
-	}
+    local original_changelog="$changelog"
+    local temp_changelog="changelog_temp"
+    local final_changelog="$output"
 
-	local current_revision="$(get_value_from_settings revision)"
-	local repo="$(get_value_from_settings url)"
-	local branch="$(get_value_from_settings branch)"
-	# ynh_app_changelog works only with an app installed from a list.
-	if [ -z "$current_revision" ] || [ -z "$repo" ] || [ -z "$branch" ]
-	then
-		ynh_print_warn "Unable to build the changelog..."
-		touch changelog
-		return 0
-	fi
+    if [ ! -n "$original_changelog" ]
+    then
+        echo "No changelog available..." > "$final_changelog"
+        echo "No changelog available..." > "${final_changelog}_lite"
+        return 0
+    fi
 
-	# Fetch the history of the repository, without cloning it
-	mkdir git_history
-	(cd git_history
-	ynh_exec_warn_less git init
-	ynh_exec_warn_less git remote add -f origin $repo
-	# Get the line of the current commit of the installed app in the history.
-	local line_to_head=$(git log origin/$branch --pretty=oneline | grep --line-number "$current_revision" | cut -d':' -f1)
-	# Cut the history before the current commit, to keep only newer commits.
-	# Then use sed to reorganise each lines and have a nice list of commits since the last upgrade.
-	# This list is redirected into the file changelog
-	git log origin/$branch --pretty=oneline | head --lines=$(($line_to_head-1)) | sed 's/^\([[:alnum:]]*\)\(.*\)/*(\1) -> \2/g' > ../changelog)
-	# Remove 'Merge pull request' commits
-	sed -i '/Merge pull request #[[:digit:]]* from/d' changelog
-	# As well as conflict resolving commits
-	sed -i '/Merge branch .* into/d' changelog
+    local current_version=$(ynh_read_manifest --manifest="/etc/yunohost/apps/$YNH_APP_INSTANCE_NAME/manifest.json" --manifest_key="version")
+    local update_version=$(ynh_read_manifest --manifest="../manifest.json" --manifest_key="version")
 
-	# Get the value of admin_mail_html
-	admin_mail_html=$(ynh_app_setting_get $app admin_mail_html)
-	admin_mail_html="${admin_mail_html:-0}"
+    # Get the line of the version to update to into the changelog
+    local update_version_line=$(grep --max-count=1 --line-number "^## \[$update_version" "$original_changelog" | cut -d':' -f1)
+    # If there's no entry for this version yet into the changelog
+    # Get the first available version
+    if [ -z "$update_version_line" ]
+    then
+        update_version_line=$(grep --max-count=1 --line-number "^##" "$original_changelog" | cut -d':' -f1)
+    fi
 
-	# If a html email is required. Apply html to the changelog.
- 	if [ "$admin_mail_html" -eq 1 ]
- 	then
-		sed -in-place "s@\*(\([[:alnum:]]*\)) -> \(.*\)@* __URL_TAG1__\2__URL_TAG2__${repo}/commit/\1__URL_TAG3__@g" changelog
- 	fi
+    # Get the length of the complete changelog.
+    local changelog_length=$(wc --lines "$original_changelog" | awk '{print $1}')
+    # Cut the file before the version to update to.
+    tail --lines=$(( $changelog_length - $update_version_line + 1 )) "$original_changelog" > "$temp_changelog"
+
+    # Get the length of the troncated changelog.
+    changelog_length=$(wc --lines "$temp_changelog" | awk '{print $1}')
+    # Get the line of the current version into the changelog
+    # Keep only the last line found
+    local current_version_line=$(grep --line-number "^## \[$current_version" "$temp_changelog" | cut -d':' -f1 | tail --lines=1)
+    # If there's no entry for this version into the changelog
+    # Get the last available version
+    if [ -z "$current_version_line" ]
+    then
+        current_version_line=$(grep --line-number "^##" "$original_changelog" | cut -d':' -f1 | tail --lines=1)
+    fi
+    # Cut the file before the current version.
+    # Then grep the previous version into the changelog to get the line number of the previous version
+    local previous_version_line=$(tail --lines=$(( $changelog_length - $current_version_line )) \
+        "$temp_changelog" | grep --max-count=1 --line-number "^## " | cut -d':' -f1)
+    # If there's no previous version into the changelog
+    # Go until the end of the changelog
+    if [ -z "$previous_version_line" ]
+    then
+        previous_version_line=$changelog_length
+    fi
+
+    # Cut the file after the previous version to keep only the changelog between the current version and the version to update to.
+    head --lines=$(( $current_version_line + $previous_version_line - 1 )) "$temp_changelog" | tee "$final_changelog"
+
+    if [ "$format" = "html" ]
+    then
+        # Replace markdown links by html links
+        ynh_replace_string --match_string="\[\(.*\)\](\(.*\)))" --replace_string="<a href=\"\2\">\1</a>)" --target_file="$final_changelog"
+        ynh_replace_string --match_string="\[\(.*\)\](\(.*\))" --replace_string="<a href=\"\2\">\1</a>" --target_file="$final_changelog"
+    elif [ "$format" = "plain" ]
+    then
+        # Change title format.
+        ynh_replace_string --match_string="^##.*\[\(.*\)\](\(.*\)) - \(.*\)$" --replace_string="## \1 (\3) - \2" --target_file="$final_changelog"
+        # Change modifications lines format.
+        ynh_replace_string --match_string="^\([-*]\).*\[\(.*\)\]\(.*\)" --replace_string="\1 \2 \3" --target_file="$final_changelog"
+    fi
+    # else markdown. As the file is already in markdown, nothing to do.
+
+    # Keep only important changes into the changelog
+    # Remove all minor changes
+    sed '/^-/d' "$final_changelog" > "${final_changelog}_lite"
+    # Remove all blank lines (to keep a clear workspace)
+    sed --in-place '/^$/d' "${final_changelog}_lite"
+    # Add a blank line at the end
+    echo "" >> "${final_changelog}_lite"
+
+    # Clean titles if there's no significative changes
+    local line
+    local previous_line=""
+    while read line <&3
+    do
+        if [ -n "$previous_line" ]
+        then
+            # Remove the line if it's a title or a blank line, and the previous one was a title as well.
+            if ( [ "${line:0:1}" = "#" ] || [ ${#line} -eq 0 ] ) && [ "${previous_line:0:1}" = "#" ]
+            then
+                ynh_replace_special_string --match_string="${previous_line//[/.}" --replace_string="" --target_file="${final_changelog}_lite"
+            fi
+        fi
+        previous_line="$line"
+    done 3< "${final_changelog}_lite"
+
+    # Remove all blank lines again
+    sed --in-place '/^$/d' "${final_changelog}_lite"
+
+    # Restore changelog format with blank lines
+    ynh_replace_string --match_string="^##.*" --replace_string="\n\n&\n" --target_file="${final_changelog}_lite"
+    # Remove the 2 first blank lines
+    sed --in-place '1,2d' "${final_changelog}_lite"
+    # Add a blank line at the end
+    echo "" >> "${final_changelog}_lite"
+
+    # If changelog are empty, add an info
+    if [ $(wc --words "$final_changelog" | awk '{print $1}') -eq 0 ]
+    then
+        echo "No changes from the changelog..." > "$final_changelog"
+    fi
+    if [ $(wc --words "${final_changelog}_lite" | awk '{print $1}') -eq 0 ]
+    then
+        echo "No significative changes from the changelog..." > "${final_changelog}_lite"
+    fi
+}
+
+#=================================================
+
+# Execute a command as another user
+# usage: exec_as USER COMMAND [ARG ...]
+exec_as() {
+  local USER=$1
+  shift 1
+
+  if [[ $USER = $(whoami) ]]; then
+    eval "$@"
+  else
+    sudo -u "$USER" "$@"
+  fi
 }

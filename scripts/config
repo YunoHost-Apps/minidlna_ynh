@@ -47,13 +47,11 @@ old_friendly_name="$(get_config_value friendly_name)"
 friendly_name="${YNH_CONFIG_MAIN_MINIDLNA_CONFIGURATION_FRIENDLY_NAME:-$old_friendly_name}"
 
 # Overwrite settings.json file
-old_overwrite_settings="$(ynh_app_setting_get $app overwrite_settings)"
-old_overwrite_settings=$(bool_to_true_false $old_overwrite_settings)
+old_overwrite_settings="$(ynh_app_setting_get --app=$app --key=overwrite_settings)"
 overwrite_settings="${YNH_CONFIG_MAIN_OVERWRITE_FILES_OVERWRITE_SETTINGS:-$old_overwrite_settings}"
 
 # Type of admin mail configuration
-old_admin_mail_html="$(ynh_app_setting_get $app admin_mail_html)"
-old_admin_mail_html=$(bool_to_true_false $old_admin_mail_html)
+old_admin_mail_html="$(ynh_app_setting_get --app=$app --key=admin_mail_html)"
 admin_mail_html="${YNH_CONFIG_MAIN_GLOBAL_CONFIG_EMAIL_TYPE:-$old_admin_mail_html}"
 
 #=================================================
@@ -75,12 +73,12 @@ show_config() {
 	elif [ "$root_container" = "V" ]; then
 		root_container="Video"
 	fi
-	echo "YNH_CONFIG_MAIN_MINIDLNA_CONFIGURATION_ROOT_CONTAINER=$root_container"
-	echo "YNH_CONFIG_MAIN_MINIDLNA_CONFIGURATION_FRIENDLY_NAME=$friendly_name"
+	ynh_return "YNH_CONFIG_MAIN_MINIDLNA_CONFIGURATION_ROOT_CONTAINER=$root_container"
+	ynh_return "YNH_CONFIG_MAIN_MINIDLNA_CONFIGURATION_FRIENDLY_NAME=$friendly_name"
 
-	echo "YNH_CONFIG_MAIN_OVERWRITE_FILES_OVERWRITE_SETTINGS=$overwrite_settings"
+	ynh_return "YNH_CONFIG_MAIN_OVERWRITE_FILES_OVERWRITE_SETTINGS=$overwrite_settings"
 
-	echo "YNH_CONFIG_MAIN_GLOBAL_CONFIG_EMAIL_TYPE=$admin_mail_html"
+	ynh_return "YNH_CONFIG_MAIN_GLOBAL_CONFIG_EMAIL_TYPE=$admin_mail_html"
 }
 
 #=================================================
@@ -105,16 +103,16 @@ apply_config() {
 	fi
 	if [ "$root_container" != "$old_root_container" ]
 	then
-		ynh_replace_string "root_container=.*" "root_container=$root_container" "$config_file"
-		ynh_app_setting_set $app root_container "$root_container"
+		ynh_replace_string --match_string="root_container=.*" --replace_string="root_container=$root_container" --target_file="$config_file"
+		ynh_app_setting_set --app=$app --key=root_container --value="$root_container"
 		restart_minidlna=1
 	fi
 
 	# friendly_name
 	if [ "$friendly_name" != "$old_friendly_name" ]
 	then
-		ynh_replace_string "friendly_name=.*" "friendly_name=$friendly_name" "$config_file"
-		ynh_app_setting_set $app friendly_name "$friendly_name"
+		ynh_replace_string --match_string="friendly_name=.*" --replace_string="friendly_name=$friendly_name" --target_file="$config_file"
+		ynh_app_setting_set --app=$app --key=friendly_name --value="$friendly_name"
 		restart_minidlna=1
 	fi
 
@@ -124,12 +122,10 @@ apply_config() {
 	fi
 
 	# Set overwrite_settings
-	overwrite_settings=$(bool_to_01 $overwrite_settings)
-	ynh_app_setting_set $app overwrite_settings "$overwrite_settings"
+	ynh_app_setting_set --app=$app --key=overwrite_settings --value="$overwrite_settings"
 
 	# Set admin_mail_html
-	admin_mail_html=$(bool_to_01 $admin_mail_html)
-	ynh_app_setting_set $app admin_mail_html "$admin_mail_html"
+	ynh_app_setting_set --app=$app --key=admin_mail_html --value="$admin_mail_html"
 }
 
 #=================================================
