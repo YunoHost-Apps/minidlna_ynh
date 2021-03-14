@@ -1,7 +1,7 @@
 # MiniDLNA pour YunoHost
 
 [![Niveau d'intégration](https://dash.yunohost.org/integration/minidlna.svg)](https://dash.yunohost.org/appci/app/minidlna) ![](https://ci-apps.yunohost.org/ci/badges/minidlna.status.svg) ![](https://ci-apps.yunohost.org/ci/badges/minidlna.maintain.svg)  
-[![Installer MiniDLNA avec YunoHost](https://install-app.yunohost.org/install-with-yunohost.png)](https://install-app.yunohost.org/?app=minidlna)
+[![Installer MiniDLNA avec YunoHost](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=minidlna)
 
 *[Read this readme in english.](./README.md)*
 
