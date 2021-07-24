@@ -102,7 +102,7 @@ fi
 # ADVERTISE SERVICE IN ADMIN PANEL
 #=================================================
 
-yunohost service add minidlna --log "/var/log/minidlna.log"
+yunohost service add minidlna --log="/var/log/minidlna.log" --needs_exposed_ports="1900"
 
 #=================================================
 # CONFIGURE MINIDLNA
