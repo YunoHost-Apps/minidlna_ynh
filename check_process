@@ -7,8 +7,8 @@
 		setup_private=0
 		setup_public=0
 		upgrade=1
-		upgrade=1	from_commit=2c107b09144c9829be5cc94b202d0f766b2a0db4
-		upgrade=1	from_commit=7fa6b0a84e0cb24cd5a26d2f5d64f68875862f42
+		#upgrade=1	from_commit=2c107b09144c9829be5cc94b202d0f766b2a0db4
+		#upgrade=1	from_commit=7fa6b0a84e0cb24cd5a26d2f5d64f68875862f42
 		backup_restore=1
 		multi_instance=0
 		port_already_use=1	(48200)
