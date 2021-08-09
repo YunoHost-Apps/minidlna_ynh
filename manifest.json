@@ -6,7 +6,7 @@
 		"en": "Light DLNA server to share media files over the LAN",
 		"fr": "Serveur DLNA léger pour partager les fichiers multimédia sur le réseau local"
 	},
-	"version": "1.0~ynh6",
+	"version": "1.0~ynh7",
 	"url": "http://minidlna.sourceforge.net/",
 	"license": "GPL-2.0",
 	"maintainer": {
@@ -18,7 +18,7 @@
 		"email": "maniackc_dev@crudelis.fr"
 	}],
 	"requirements": {
-		"yunohost": ">= 3.6"
+		"yunohost": ">= 4.2.4"
 	},
 	"multi_instance": false,
 	"services": [],
