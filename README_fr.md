@@ -4,63 +4,46 @@
 [![Installer MiniDLNA avec YunoHost](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=minidlna)
 
 *[Read this readme in english.](./README.md)*
+*[Lire ce readme en français.](./README_fr.md)*
 
-> *Ce package vous permet d'installer MiniDLNA rapidement et simplement sur un serveur YunoHost.  
-Si vous n'avez pas YunoHost, merci de regarder [ici](https://yunohost.org/#/install_fr) pour savoir comment l'installer et en profiter.*
+> *Ce package vous permet d'installer MiniDLNA rapidement et simplement sur un serveur YunoHost.
+Si vous n'avez pas YunoHost, regardez [ici](https://yunohost.org/#/install) pour savoir comment l'installer et en profiter.*
 
-## Résumé
+## Vue d'ensemble
 
 MiniDLNA est un simple serveur multimédia, dont le but est d'être entièrement compatible avec les clients DLNA/UPnP-AV.
 
-**Version embarquée :** Versions des dépôts Debian. Actuellement 1.2.1
 
-## Captures d'écran
+**Version incluse :** 1.0~ynh8
 
-## Démo
 
-Aucune démo pour cette application.
+
+## Avertissements / informations importantes
 
 ## Configuration
 
 Éditez le fichier `/etc/minidlna.conf` pour ajuster la configuration de MiniDLNA.
-
-## Documentation
-
- * Documentation YunoHost : https://yunohost.org/#/app_minidlna
 
 ## Fonctionnalités spécifiques à YunoHost
 
 * Utilise les répertoires multimédia partagés.
 * Lié à transmission, Nextcloud et toute autre application qui utilise les répertoires multimédia.
 
-#### Support multi-utilisateurs
+## Documentations et ressources
 
-Non applicable.
+* Site officiel de l'app : http://minidlna.sourceforge.net
+* Documentation YunoHost pour cette app : https://yunohost.org/app_minidlna
+* Signaler un bug : https://github.com/YunoHost-Apps/minidlna_ynh/issues
 
-#### Architectures supportées.
-
-* x86-64 - [![](https://ci-apps.yunohost.org/ci/logs/minidlna%20%28Apps%29.svg)](https://ci-apps.yunohost.org/ci/apps/minidlna/)
-* ARMv8-A - [![](https://ci-apps-arm.yunohost.org/ci/logs/minidlna%20%28Apps%29.svg)](https://ci-apps-arm.yunohost.org/ci/apps/minidlna/)
-
-## Limitations
-
-## Informations additionnelles
-
-## Liens
-
- * Reporter un bug : https://github.com/YunoHost-Apps/minidlna_ynh/issues
- * Site de MiniDLNA : http://minidlna.sourceforge.net/
- * Site de YunoHost : https://yunohost.org/
-
----
-
-## Informations à l'intention des développeurs
+## Informations pour les développeurs
 
 Merci de faire vos pull request sur la [branche testing](https://github.com/YunoHost-Apps/minidlna_ynh/tree/testing).
 
-Pour tester la branche testing, merci de procéder ainsi.
+Pour essayer la branche testing, procédez comme suit.
 ```
 sudo yunohost app install https://github.com/YunoHost-Apps/minidlna_ynh/tree/testing --debug
 ou
 sudo yunohost app upgrade minidlna -u https://github.com/YunoHost-Apps/minidlna_ynh/tree/testing --debug
 ```
+
+**Plus d'infos sur le packaging d'applications :** https://yunohost.org/packaging_apps
