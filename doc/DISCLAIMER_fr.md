@@ -1,8 +1,8 @@
 ## Configuration
 
-Éditez le fichier `/etc/minidlna.conf` pour ajuster la configuration de MiniDLNA.
+Ã‰ditez le fichier `/etc/minidlna.conf` pour ajuster la configuration de MiniDLNA.
 
-## Fonctionnalités spécifiques à YunoHost
+## FonctionnalitÃ©s spÃ©cifiques Ã  YunoHost
 
-* Utilise les répertoires multimédia partagés.
-* Lié à transmission, Nextcloud et toute autre application qui utilise les répertoires multimédia.
+* Utilise les rÃ©pertoires multimÃ©dia partagÃ©s.
+* LiÃ© Ã  transmission, Nextcloud et toute autre application qui utilise les rÃ©pertoires multimÃ©dia.

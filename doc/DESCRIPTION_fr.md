@@ -1,1 +1,1 @@
-MiniDLNA est un simple serveur multimédia, dont le but est d'être entièrement compatible avec les clients DLNA/UPnP-AV.
+MiniDLNA est un simple serveur multimÃ©dia, dont le but est d'Ãªtre entiÃ¨rement compatible avec les clients DLNA/UPnP-AV.
