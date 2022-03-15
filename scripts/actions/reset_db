@@ -33,9 +33,9 @@ ynh_script_progression --message="Resetting the database..." --weight=9
 # Get the last value for `db_dir` in the config file of minidlna
 db_directory=$(tac /etc/minidlna.conf | grep --max-count=1 "db_dir=" | cut -d'=' -f 2)
 
-ynh_systemd_action --action=stop --service_name=minidlna
+ynh_systemd_action --action=stop --service_name=$app
 ynh_secure_remove --file="$db_directory/files.db"
-ynh_systemd_action --action=start --service_name=minidlna
+ynh_systemd_action --action=start --service_name=$app
 
 #=================================================
 # END OF SCRIPT
