@@ -63,7 +63,7 @@ if [ -e "/etc/sysctl.d/90-inotify_minidlna.conf" ]; then
 	# Reload the kernel configuration.
 	if ! IS_PACKAGE_CHECK   # LXC doesn't allow sysctl to play with kernel options.
 	then
-		sysctl -p /etc/sysctl.d/90-inotify_minidlna.conf
+		sysctl --system
 	fi
 fi
 
