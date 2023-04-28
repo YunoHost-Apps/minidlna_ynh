@@ -17,23 +17,3 @@ name = "Minidlna configuration"
         ask = "Name of DLNA server shown to clients ?"
         type = "text"
         default = "Yunohost DLNA"
-
-
-    [main.overwrite_files]
-    name = "Overwriting config files"
-
-        [main.overwrite_files.overwrite_settings]
-        ask = "Overwrite the config file minidlna.conf ?"
-        type = "boolean"
-        default = true
-        help = "If the file is overwritten, a backup will be created."
-
-
-    [main.global_config]
-    name = "Global configuration"
-
-        [main.global_config.email_type]
-        ask = "Send HTML email to admin ?"
-        type = "boolean"
-        default = true
-        help = "Allow app scripts to send HTML mails instead of plain text."

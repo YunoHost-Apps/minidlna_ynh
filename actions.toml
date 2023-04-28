@@ -1,4 +1,0 @@
-[reset_db]
-name = "Reinitialise the database"
-command = "/bin/bash scripts/actions/reset_db"
-description = "Remove the database and force Minidlna to create a new one."
