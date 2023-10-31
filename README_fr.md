@@ -34,7 +34,7 @@ MiniDLNA est un simple serveur multimédia, dont le but est d'être entièrement
 ## Documentations et ressources
 
 * Site officiel de l’app : <http://minidlna.sourceforge.net>
-* Documentation YunoHost pour cette app : <https://yunohost.org/app_minidlna>
+* YunoHost Store: <https://apps.yunohost.org/app/minidlna>
 * Signaler un bug : <https://github.com/YunoHost-Apps/minidlna_ynh/issues>
 
 ## Informations pour les développeurs

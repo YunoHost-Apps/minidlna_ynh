@@ -34,7 +34,7 @@ Edit the file `/etc/minidlna.conf` to adjust the configuration of MiniDLNA.
 ## Documentation and resources
 
 * Official app website: <http://minidlna.sourceforge.net>
-* YunoHost documentation for this app: <https://yunohost.org/app_minidlna>
+* YunoHost Store: <https://apps.yunohost.org/app/minidlna>
 * Report a bug: <https://github.com/YunoHost-Apps/minidlna_ynh/issues>
 
 ## Developer info
