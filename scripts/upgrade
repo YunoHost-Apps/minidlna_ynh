@@ -10,39 +10,10 @@ source _common.sh
 source /usr/share/yunohost/helpers
 
 #=================================================
-# LOAD SETTINGS
-#=================================================
-#REMOVEME? ynh_script_progression --message="Loading installation settings..." --weight=2
-
-#REMOVEME? app=$YNH_APP_INSTANCE_NAME
-
-#REMOVEME? version=$(ynh_app_setting_get --app=$app --key=version)
-#REMOVEME? port=$(ynh_app_setting_get --app=$app --key=port)
-#REMOVEME? overwrite_settings=$(ynh_app_setting_get --app=$app --key=overwrite_settings)
-#REMOVEME? root_container=$(ynh_app_setting_get --app=$app --key=root_container)
-#REMOVEME? friendly_name=$(ynh_app_setting_get --app=$app --key=friendly_name)
-
-#=================================================
 # CHECK VERSION
 #=================================================
-ynh_script_progression --message="Checking version..."
 
 upgrade_type=$(ynh_check_app_version_changed)
-
-#=================================================
-# BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
-#=================================================
-#REMOVEME? ynh_script_progression --message="Backing up the app before upgrading (may take a while)..."
-
-# Backup the current version of the app
-#REMOVEME? ynh_backup_before_upgrade
-#REMOVEME? ynh_clean_setup () {
-	ynh_clean_check_starting
-	# Restore it if the upgrade fails
-#REMOVEME? 	ynh_restore_upgradebackup
-}
-# Exit if an error occurs during the execution of the script
-#REMOVEME? ynh_abort_if_errors
 
 #=================================================
 # ENSURE DOWNWARD COMPATIBILITY
@@ -72,13 +43,6 @@ if [ -n "$version" ]; then
 	ynh_secure_remove --file="/etc/apt/sources.list.d/minidlna.list"
 	ynh_app_setting_delete --app=$app --key=version
 fi
-
-#=================================================
-# UPGRADE DEPENDENCIES
-#=================================================
-#REMOVEME? ynh_script_progression --message="Upgrading dependencies..." --weight=3
-
-#REMOVEME? ynh_install_app_dependencies $pkg_dependencies
 
 #=================================================
 # SPECIFIC UPGRADE
@@ -136,22 +100,6 @@ yunohost service add $app --log="/var/log/$app.log" --needs_exposed_ports="1900"
 ynh_script_progression --message="Starting a systemd service..." --weight=7
 
 ynh_systemd_action --service_name=$app --action="restart" --log_path="/var/log/$app.log"
-
-#=================================================
-# SEND A README FOR THE ADMIN
-#=================================================
-
-# Get main domain and buid the url of the admin panel of the app.
-admin_panel="https://$(grep portal_domain /etc/ssowat/conf.json | cut -d'"' -f4)/yunohost/admin/#/apps/$app"
-
-echo "You can find a config file at /etc/minidlna.conf
-
-MiniDLNA is going to serve the files present in the directory /home/yunohost.multimedia/share
-
-Please have a look to the documentation to learn more how to use MiniDLNA, https://yunohost.org/#/app_minidlna
-" > mail_to_send
-
-ynh_send_readme_to_admin --app_message="mail_to_send" --recipients="root" --type=upgrade
 
 #=================================================
 # END OF SCRIPT
