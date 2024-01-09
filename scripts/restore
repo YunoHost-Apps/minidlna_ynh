@@ -14,20 +14,20 @@ source /usr/share/yunohost/helpers
 # MANAGE SCRIPT FAILURE
 #=================================================
 
-ynh_clean_setup () {
+#REMOVEME? ynh_clean_setup () {
 	ynh_clean_check_starting
 }
 # Exit if an error occurs during the execution of the script
-ynh_abort_if_errors
+#REMOVEME? ynh_abort_if_errors
 
 #=================================================
 # LOAD SETTINGS
 #=================================================
-ynh_script_progression --message="Loading installation settings..."
+#REMOVEME? ynh_script_progression --message="Loading installation settings..."
 
-app=$YNH_APP_INSTANCE_NAME
+#REMOVEME? app=$YNH_APP_INSTANCE_NAME
 
-port=$(ynh_app_setting_get --app=$app --key=port)
+#REMOVEME? port=$(ynh_app_setting_get --app=$app --key=port)
 
 #=================================================
 # SPECIFIC RESTORE
@@ -50,10 +50,10 @@ ynh_multimedia_build_main_dir
 #=================================================
 # REINSTALL DEPENDENCIES
 #=================================================
-ynh_script_progression --message="Reinstalling dependencies..." --weight=45
+#REMOVEME? ynh_script_progression --message="Reinstalling dependencies..." --weight=45
 
 # Define and install dependencies
-ynh_install_app_dependencies $pkg_dependencies
+#REMOVEME? ynh_install_app_dependencies $pkg_dependencies
 
 #=================================================
 # RESTORE VARIOUS FILES
