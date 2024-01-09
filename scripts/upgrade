@@ -18,7 +18,7 @@ upgrade_type=$(ynh_check_app_version_changed)
 #=================================================
 # ENSURE DOWNWARD COMPATIBILITY
 #=================================================
-ynh_script_progression --message="Ensuring downward compatibility..."
+ynh_script_progression --message="Ensuring downward compatibility..." --weight=1
 
 # If overwrite_settings doesn't exist, create it
 if [ -z "$overwrite_settings" ]; then
@@ -34,7 +34,7 @@ fi
 
 # If friendly_name doesn't exist, create it
 if [ -z "$friendly_name" ]; then
-	friendly_name="Yunohost DLNA"
+	friendly_name="YunoHost DLNA"
 	ynh_app_setting_set --app=$app --key=friendly_name --value=$friendly_name
 fi
 
@@ -90,7 +90,7 @@ fi
 #=================================================
 # INTEGRATE SERVICE IN YUNOHOST
 #=================================================
-ynh_script_progression --message="Integrating service in YunoHost..."
+ynh_script_progression --message="Integrating service in YunoHost..." --weight=1
 
 yunohost service add $app --log="/var/log/$app.log" --needs_exposed_ports="1900"
 

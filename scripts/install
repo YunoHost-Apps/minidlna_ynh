@@ -39,7 +39,7 @@ ynh_multimedia_build_main_dir
 #=================================================
 # INCREASE INOTIFY'S LIMITS
 #=================================================
-ynh_script_progression --message="Increasing inotify's limits..."
+ynh_script_progression --message="Increasing inotify's limits..." --weight=1
 
 # Increase the maximum number of files inotify can monitor.
 cp -a ../conf/90-inotify_minidlna.conf /etc/sysctl.d/
@@ -70,7 +70,7 @@ ynh_store_file_checksum --file="/etc/minidlna.conf"
 #=================================================
 # INTEGRATE SERVICE IN YUNOHOST
 #=================================================
-ynh_script_progression --message="Integrating service in YunoHost..."
+ynh_script_progression --message="Integrating service in YunoHost..." --weight=1
 
 yunohost service add $app --log="/var/log/$app.log" --needs_exposed_ports="1900"
 
