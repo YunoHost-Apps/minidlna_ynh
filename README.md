@@ -16,10 +16,17 @@ If you don't have YunoHost, please consult [the guide](https://yunohost.org/#/in
 
 ## Overview
 
-MiniDLNA is a simple media server software, with the aim of being fully compliant with DLNA/UPnP-AV clients.
+MiniDLNA is a lightweight [DLNA](https://fr.wikipedia.org/wiki/Digital_Living_Network_Alliance) server.
+It allows to easily share multimedia files with any compatible devices present on the LAN.
+MiniDLNA does not have a graphical interface, but does not require any special configuration.
+
+## YunoHost specific features
+
+* Use shared Multimedia Directories
+* Linked to transmission, Nextcloud and all other app which use Multimedia Directories.
 
 
-**Shipped version:** 1.0~ynh9
+**Shipped version:** 1.3.0~ynh1
 ## Documentation and resources
 
 * Official app website: <http://minidlna.sourceforge.net>
