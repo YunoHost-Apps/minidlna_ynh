@@ -10,19 +10,6 @@ source _common.sh
 source /usr/share/yunohost/helpers
 
 #=================================================
-# MANAGE SCRIPT FAILURE
-#=================================================
-
-# Exit if an error occurs during the execution of the script
-#REMOVEME? ynh_abort_if_errors
-
-#=================================================
-# RETRIEVE ARGUMENTS FROM THE MANIFEST
-#=================================================
-
-#REMOVEME? app=$YNH_APP_INSTANCE_NAME
-
-#=================================================
 # STORE SETTINGS FROM MANIFEST
 #=================================================
 #REMOVEME? ynh_script_progression --message="Storing installation settings..." --weight=2
@@ -37,21 +24,8 @@ ynh_app_setting_set --app=$app --key=overwrite_settings --value=1
 #=================================================
 ynh_script_progression --message="Configuring firewall..." --weight=15
 
-# Find a free port
-#REMOVEME? port=$(ynh_find_port --port=48200)
-
-# Open ports
-ynh_exec_fully_quiet yunohost firewall allow --no-upnp TCP $port
 # Discovery Protocol SSDP for UPNP.
 ynh_exec_fully_quiet yunohost firewall allow --no-upnp UDP 1900
-#REMOVEME? ynh_app_setting_set --app=$app --key=port --value=$port
-
-#=================================================
-# INSTALL DEPENDENCIES
-#=================================================
-#REMOVEME? ynh_script_progression --message="Installing dependencies..." --weight=45
-
-#REMOVEME? ynh_install_app_dependencies $pkg_dependencies
 
 #=================================================
 # SPECIFIC SETUP
