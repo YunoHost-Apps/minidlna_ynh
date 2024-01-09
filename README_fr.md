@@ -20,17 +20,6 @@ MiniDLNA est un simple serveur multimédia, dont le but est d'être entièrement
 
 
 **Version incluse :** 1.0~ynh9
-## Avertissements / informations importantes
-
-## Configuration
-
-Éditez le fichier `/etc/minidlna.conf` pour ajuster la configuration de MiniDLNA.
-
-## Fonctionnalités spécifiques à YunoHost
-
-* Utilise les répertoires multimédia partagés.
-* Lié à transmission, Nextcloud et toute autre application qui utilise les répertoires multimédia.
-
 ## Documentations et ressources
 
 * Site officiel de l’app : <http://minidlna.sourceforge.net>

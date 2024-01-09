@@ -20,17 +20,6 @@ MiniDLNA is a simple media server software, with the aim of being fully complian
 
 
 **Shipped version:** 1.0~ynh9
-## Disclaimers / important information
-
-## Configuration
-
-Edit the file `/etc/minidlna.conf` to adjust the configuration of MiniDLNA.
-
-## YunoHost specific features
-
-* Use shared Multimedia Directories
-* Linked to transmission, Nextcloud and all other app which use Multimedia Directories.
-
 ## Documentation and resources
 
 * Official app website: <http://minidlna.sourceforge.net>
