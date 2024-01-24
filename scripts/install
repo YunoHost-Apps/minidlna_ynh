@@ -14,8 +14,8 @@ source /usr/share/yunohost/helpers
 #=================================================
 ynh_script_progression --message="Storing installation settings..." --weight=2
 
-ynh_app_setting_set --app=$app --key=overwrite_settings --value=1
-ynh_app_setting_set --app=$app --key=admin_mail_html --value=1
+ynh_app_setting_set --app="$app" --key=overwrite_settings --value=1
+ynh_app_setting_set --app="$app" --key=admin_mail_html --value=1
 
 #=================================================
 # STANDARD MODIFICATIONS
@@ -44,9 +44,8 @@ ynh_script_progression --message="Increasing inotify's limits..." --weight=1
 # Increase the maximum number of files inotify can monitor.
 cp -a ../conf/90-inotify_minidlna.conf /etc/sysctl.d/
 # Then, reload the kernel configuration.
-if ! IS_PACKAGE_CHECK   # LXC doesn't allow sysctl to play with kernel options.
-then
-	sysctl -p /etc/sysctl.d/90-inotify_minidlna.conf
+if ! IS_PACKAGE_CHECK; then   # LXC doesn't allow sysctl to play with kernel options.
+    sysctl -p /etc/sysctl.d/90-inotify_minidlna.conf
 fi
 
 #=================================================
@@ -57,11 +56,11 @@ ynh_script_progression --message="Configuring MiniDLNA..." --weight=2
 ynh_replace_string --match_string="^#*media_dir=.*" --replace_string="media_dir=/home/yunohost.multimedia/share" --target_file=/etc/minidlna.conf
 ynh_replace_string --match_string="^#*port=.*" --replace_string="port=$port" --target_file=/etc/minidlna.conf
 friendly_name="Yunohost DLNA"
-ynh_app_setting_set --app=$app --key=friendly_name --value="$friendly_name"
+ynh_app_setting_set --app="$app" --key=friendly_name --value="$friendly_name"
 ynh_replace_string --match_string="^#*friendly_name=.*" --replace_string="friendly_name=$friendly_name" --target_file=/etc/minidlna.conf
 root_container="B"
 ynh_replace_string --match_string="^#*root_container=.*" --replace_string="root_container=$root_container" --target_file=/etc/minidlna.conf
-ynh_app_setting_set --app=$app --key=root_container --value="$root_container"
+ynh_app_setting_set --app="$app" --key=root_container --value="$root_container"
 ynh_replace_string --match_string="^#wide_links=.*" --replace_string="wide_links=yes" --target_file=/etc/minidlna.conf
 
 # Calculate and store the config file checksum into the app settings
@@ -72,7 +71,7 @@ ynh_store_file_checksum --file="/etc/minidlna.conf"
 #=================================================
 ynh_script_progression --message="Integrating service in YunoHost..." --weight=1
 
-yunohost service add $app --log="/var/log/$app.log" --needs_exposed_ports="1900"
+yunohost service add "$app" --log="/var/log/$app.log" --needs_exposed_ports="1900"
 
 #=================================================
 # START SYSTEMD SERVICE
@@ -80,7 +79,7 @@ yunohost service add $app --log="/var/log/$app.log" --needs_exposed_ports="1900"
 ynh_script_progression --message="Starting a systemd service..." --weight=4
 
 # Start a systemd service
-ynh_systemd_action --service_name=$app --action="restart" --log_path="/var/log/$app.log"
+ynh_systemd_action --service_name="$app" --action="restart" --log_path="/var/log/$app.log"
 
 #=================================================
 # END OF SCRIPT
