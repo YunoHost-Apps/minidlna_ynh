@@ -14,6 +14,7 @@ maintainers = []
 [upstream]
 license = "GPL-2.0"
 website = "http://minidlna.sourceforge.net"
+cpe = "cpe:2.3:a:readymedia_project:readymedia"
 
 [integration]
 yunohost = ">= 11.2"
