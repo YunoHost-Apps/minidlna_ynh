@@ -10,44 +10,20 @@ source _common.sh
 source /usr/share/yunohost/helpers
 
 #=================================================
-# LOAD SETTINGS
-#=================================================
-ynh_script_progression --message="Loading installation settings..." --weight=2
-
-app=$YNH_APP_INSTANCE_NAME
-
-port=$(ynh_app_setting_get --app=$app --key=port)
-
-#=================================================
 # STANDARD REMOVE
 #=================================================
 # REMOVE SERVICE INTEGRATION IN YUNOHOST
 #=================================================
 
 # Remove the service from the list of services known by YunoHost (added from `yunohost service add`)
-if ynh_exec_warn_less yunohost service status $app >/dev/null
-then
-	ynh_script_progression --message="Removing $app service integration..."
-	yunohost service remove $app
+if ynh_exec_warn_less yunohost service status $app >/dev/null; then
+    ynh_script_progression --message="Removing $app service integration..."
+    yunohost service remove $app
 fi
-
-#=================================================
-# REMOVE DEPENDENCIES
-#=================================================
-ynh_script_progression --message="Removing dependencies..."
-
-# Remove metapackage and its dependencies
-ynh_remove_app_dependencies
 
 #=================================================
 # CLOSE A PORT
 #=================================================
-
-if yunohost firewall list | grep -q "\- $port$"
-then
-	ynh_script_progression --message="Closing port $port..."
-	ynh_exec_warn_less yunohost firewall disallow TCP $port
-fi
 
 ynh_exec_fully_quiet yunohost firewall disallow UDP 1900
 
@@ -56,15 +32,15 @@ ynh_exec_fully_quiet yunohost firewall disallow UDP 1900
 #=================================================
 # REMOVE VARIOUS FILES
 #=================================================
-ynh_script_progression --message="Removing various files..."
+ynh_script_progression --message="Removing various files..." --weight=1
 
 if [ -e "/etc/sysctl.d/90-inotify_minidlna.conf" ]; then
-	ynh_secure_remove --file="/etc/sysctl.d/90-inotify_minidlna.conf"
-	# Reload the kernel configuration.
-	if ! IS_PACKAGE_CHECK   # LXC doesn't allow sysctl to play with kernel options.
-	then
-		sysctl -p /etc/sysctl.d/90-inotify_minidlna.conf
-	fi
+    ynh_secure_remove --file="/etc/sysctl.d/90-inotify_minidlna.conf"
+    # Reload the kernel configuration.
+    if ! IS_PACKAGE_CHECK   # LXC doesn't allow sysctl to play with kernel options.
+    then
+        sysctl -p /etc/sysctl.d/90-inotify_minidlna.conf
+    fi
 fi
 
 #=================================================

@@ -1,11 +1,4 @@
-# MiniDLNA
-
-MiniDLNA est un serveur [DLNA](https://fr.wikipedia.org/wiki/Digital_Living_Network_Alliance) ultra léger.
-Il permet de partager très simplement les fichiers multimédias avec tout les appareils compatibles présent sur le réseau local.
-
-Minidlna ne dispose pas d'une interface graphique, mais ne nécessite pas de configuration particulière.
-
-### Quels fichiers multimédias sont partagés?
+### Quels fichiers multimédias sont partagés ?
 
 Minidlna partage le dossier `/home/yunohost.multimedia/share`, qui est commun à chaque utilisateur dans le dossier `/home/$USER/Multimedia/Share`.
 

@@ -1,0 +1,46 @@
+#:schema https://raw.githubusercontent.com/YunoHost/apps/master/schemas/manifest.v2.schema.json
+
+packaging_format = 2
+
+id = "minidlna"
+name = "MiniDLNA"
+description.en = "Light DLNA server to share media files over the LAN"
+description.fr = "Serveur DLNA léger pour partager les fichiers multimédia sur le réseau local"
+
+version = "1.3.0~ynh1"
+
+maintainers = []
+
+[upstream]
+license = "GPL-2.0"
+website = "http://minidlna.sourceforge.net"
+cpe = "cpe:2.3:a:readymedia_project:readymedia"
+
+[integration]
+yunohost = ">= 11.2"
+architectures = "all"
+multi_instance = false
+
+ldap = false
+
+sso = false
+
+disk = "50M"
+ram.build = "250M"
+ram.runtime = "50M"
+
+[install]
+
+[resources]
+    [resources.system_user]
+
+    [resources.install_dir]
+
+    [resources.permissions]
+
+    [resources.ports]
+    main.default = 48200
+    main.exposed = "TCP"
+
+    [resources.apt]
+    packages = "minidlna"
