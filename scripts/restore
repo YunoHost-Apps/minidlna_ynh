@@ -33,7 +33,7 @@ ynh_multimedia_build_main_dir
 ynh_script_progression --message="Restoring various files..." --weight=1
 
 ynh_restore_file --origin_path="/etc/sysctl.d/90-inotify_minidlna.conf"
-if ! IS_PACKAGE_CHECK; then   # LXC doesn't allow sysctl to play with kernel options.
+if ! [ "$container" = "lxc" ]; then   # LXC doesn't allow sysctl to play with kernel options.
     sysctl -p /etc/sysctl.d/90-inotify_minidlna.conf
 fi
 # Delete the current config of minidlna, in order to replace it by the version from the backup
