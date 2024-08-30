@@ -1,11 +1,5 @@
 #!/bin/bash
 
-#=================================================
-# GENERIC START
-#=================================================
-# IMPORT GENERIC HELPERS
-#=================================================
-
 source _common.sh
 source /usr/share/yunohost/helpers
 
@@ -16,8 +10,8 @@ source /usr/share/yunohost/helpers
 #=================================================
 
 # Remove the service from the list of services known by YunoHost (added from `yunohost service add`)
-if ynh_exec_warn_less yunohost service status $app >/dev/null; then
-    ynh_script_progression --message="Removing $app service integration..."
+if ynh_hide_warnings yunohost service status $app >/dev/null; then
+    ynh_script_progression "Removing $app service integration..."
     yunohost service remove $app
 fi
 
@@ -25,17 +19,17 @@ fi
 # CLOSE A PORT
 #=================================================
 
-ynh_exec_fully_quiet yunohost firewall disallow UDP 1900
+yunohost firewall disallow UDP 1900
 
 #=================================================
 # SPECIFIC REMOVE
 #=================================================
 # REMOVE VARIOUS FILES
 #=================================================
-ynh_script_progression --message="Removing various files..." --weight=1
+ynh_script_progression "Removing various files..."
 
 if [ -e "/etc/sysctl.d/90-inotify_minidlna.conf" ]; then
-    ynh_secure_remove --file="/etc/sysctl.d/90-inotify_minidlna.conf"
+    ynh_safe_rm "/etc/sysctl.d/90-inotify_minidlna.conf"
     # Reload the kernel configuration.
     if ! IS_PACKAGE_CHECK   # LXC doesn't allow sysctl to play with kernel options.
     then
@@ -47,4 +41,4 @@ fi
 # END OF SCRIPT
 #=================================================
 
-ynh_script_progression --message="Removal of $app completed" --last
+ynh_script_progression "Removal of $app completed"
