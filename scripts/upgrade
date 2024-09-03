@@ -61,7 +61,7 @@ ynh_script_progression --message="Increasing inotify's limits..." --weight=2
 # Increase the maximum number of files inotify can monitor.
 cp -a ../conf/90-inotify_minidlna.conf /etc/sysctl.d/
 # Then, reload the kernel configuration.
-if ! IS_PACKAGE_CHECK   # LXC doesn't allow sysctl to play with kernel options.
+if ! [ "$container" = "lxc" ]; # lxc doesn't allow sysctl to play with kernel options.
 then
 	sysctl -p /etc/sysctl.d/90-inotify_minidlna.conf
 fi
