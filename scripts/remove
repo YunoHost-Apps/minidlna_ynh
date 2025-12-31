@@ -4,8 +4,6 @@ source _common.sh
 source /usr/share/yunohost/helpers
 
 #=================================================
-# STANDARD REMOVE
-#=================================================
 # REMOVE SERVICE INTEGRATION IN YUNOHOST
 #=================================================
 
@@ -21,8 +19,6 @@ fi
 
 yunohost firewall disallow UDP 1900
 
-#=================================================
-# SPECIFIC REMOVE
 #=================================================
 # REMOVE VARIOUS FILES
 #=================================================

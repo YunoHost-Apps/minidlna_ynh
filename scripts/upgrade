@@ -9,25 +9,13 @@ source /usr/share/yunohost/helpers
 ynh_script_progression "Ensuring downward compatibility..."
 
 # If overwrite_settings doesn't exist, create it
-# FIXMEhelpers2.1: maybe replace with: ynh_app_setting_set_default --key=overwrite_settings --value=1
-if [ -z "${overwrite_settings:-}" ]; then
-	overwrite_settings=1
-	ynh_app_setting_set --key=overwrite_settings --value=$overwrite_settings
-fi
+ynh_app_setting_set_default --key=overwrite_settings --value=1
 
 # If root_container doesn't exist, create it
-# FIXMEhelpers2.1: maybe replace with: ynh_app_setting_set_default --key=root_container --value="B"
-if [ -z "${root_container:-}" ]; then
-	root_container="B"
-	ynh_app_setting_set --key=root_container --value=$root_container
-fi
+ynh_app_setting_set_default --key=root_container --value="B"
 
 # If friendly_name doesn't exist, create it
-# FIXMEhelpers2.1: maybe replace with: ynh_app_setting_set_default --key=friendly_name --value="YunoHost DLNA"
-if [ -z "${friendly_name:-}" ]; then
-	friendly_name="YunoHost DLNA"
-	ynh_app_setting_set --key=friendly_name --value=$friendly_name
-fi
+ynh_app_setting_set_default --key=friendly_name --value="YunoHost DLNA"
 
 # If version exists, remove the backport source list, as it's no longer used.
 if [ -n "${version:-}" ]; then
