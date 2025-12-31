@@ -1,45 +1,37 @@
 #!/bin/bash
 
-#=================================================
-# GENERIC START
-#=================================================
-# IMPORT GENERIC HELPERS
-#=================================================
-
 source _common.sh
 source /usr/share/yunohost/helpers
 
 #=================================================
 # STORE SETTINGS FROM MANIFEST
 #=================================================
-ynh_script_progression --message="Storing installation settings..." --weight=2
+ynh_script_progression "Storing installation settings..."
 
-ynh_app_setting_set --app="$app" --key=overwrite_settings --value=1
-ynh_app_setting_set --app="$app" --key=admin_mail_html --value=1
+ynh_app_setting_set --key=overwrite_settings --value=1
+ynh_app_setting_set --key=admin_mail_html --value=1
 
-#=================================================
-# STANDARD MODIFICATIONS
 #=================================================
 # FIND AND OPEN A PORT
 #=================================================
-ynh_script_progression --message="Configuring firewall..." --weight=15
+ynh_script_progression "Configuring firewall..."
 
 # Discovery Protocol SSDP for UPNP.
-ynh_exec_fully_quiet yunohost firewall allow --no-upnp UDP 1900
+yunohost firewall allow --no-upnp UDP 1900
 
 #=================================================
 # SPECIFIC SETUP
 #=================================================
 # CREATE YUNOHOST.MULTIMEDIA DIRECTORY
 #=================================================
-ynh_script_progression --message="Creating yunohost.multimedia directory..." --weight=8
+ynh_script_progression "Creating yunohost.multimedia directory..."
 
 ynh_multimedia_build_main_dir
 
 #=================================================
 # INCREASE INOTIFY'S LIMITS
 #=================================================
-ynh_script_progression --message="Increasing inotify's limits..." --weight=1
+ynh_script_progression "Increasing inotify's limits..."
 
 # Increase the maximum number of files inotify can monitor.
 cp -a ../conf/90-inotify_minidlna.conf /etc/sysctl.d/
@@ -51,38 +43,38 @@ fi
 #=================================================
 # CONFIGURE MINIDLNA
 #=================================================
-ynh_script_progression --message="Configuring MiniDLNA..." --weight=2
+ynh_script_progression "Configuring MiniDLNA..."
 
-ynh_replace_string --match_string="^#*media_dir=.*" --replace_string="media_dir=/home/yunohost.multimedia/share" --target_file=/etc/minidlna.conf
-ynh_replace_string --match_string="^#*port=.*" --replace_string="port=$port" --target_file=/etc/minidlna.conf
+ynh_replace --match="^#*media_dir=.*" --replace="media_dir=/home/yunohost.multimedia/share" --file=/etc/minidlna.conf
+ynh_replace --match="^#*port=.*" --replace="port=$port" --file=/etc/minidlna.conf
 friendly_name="Yunohost DLNA"
-ynh_app_setting_set --app="$app" --key=friendly_name --value="$friendly_name"
-ynh_replace_string --match_string="^#*friendly_name=.*" --replace_string="friendly_name=$friendly_name" --target_file=/etc/minidlna.conf
+ynh_app_setting_set --key=friendly_name --value="$friendly_name"
+ynh_replace --match="^#*friendly_name=.*" --replace="friendly_name=$friendly_name" --file=/etc/minidlna.conf
 root_container="B"
-ynh_replace_string --match_string="^#*root_container=.*" --replace_string="root_container=$root_container" --target_file=/etc/minidlna.conf
-ynh_app_setting_set --app="$app" --key=root_container --value="$root_container"
-ynh_replace_string --match_string="^#wide_links=.*" --replace_string="wide_links=yes" --target_file=/etc/minidlna.conf
+ynh_replace --match="^#*root_container=.*" --replace="root_container=$root_container" --file=/etc/minidlna.conf
+ynh_app_setting_set --key=root_container --value="$root_container"
+ynh_replace --match="^#wide_links=.*" --replace="wide_links=yes" --file=/etc/minidlna.conf
 
 # Calculate and store the config file checksum into the app settings
-ynh_store_file_checksum --file="/etc/minidlna.conf"
+ynh_store_file_checksum "/etc/minidlna.conf"
 
 #=================================================
 # INTEGRATE SERVICE IN YUNOHOST
 #=================================================
-ynh_script_progression --message="Integrating service in YunoHost..." --weight=1
+ynh_script_progression "Integrating service in YunoHost..."
 
 yunohost service add "$app" --log="/var/log/$app.log" --needs_exposed_ports="1900"
 
 #=================================================
 # START SYSTEMD SERVICE
 #=================================================
-ynh_script_progression --message="Starting a systemd service..." --weight=4
+ynh_script_progression "Starting $app's systemd service..."
 
 # Start a systemd service
-ynh_systemd_action --service_name="$app" --action="restart" --log_path="/var/log/$app.log"
+ynh_systemctl --service="$app" --action="restart" --log_path="/var/log/$app.log"
 
 #=================================================
 # END OF SCRIPT
 #=================================================
 
-ynh_script_progression --message="Installation of $app completed" --last
+ynh_script_progression "Installation of $app completed"
